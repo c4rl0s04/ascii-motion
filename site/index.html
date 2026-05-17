@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ascii-motion turns video files into smooth ASCII animations for modern ANSI terminals."
+    />
+    <title>ascii-motion | Video-to-ASCII playback for modern terminals</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="ascii-motion home">
+          <span class="brand-mark" aria-hidden="true">▣</span>
+          <span>ascii-motion</span>
+        </a>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+          data-nav-toggle
+        >
+          <span class="nav-toggle-line"></span>
+          <span class="nav-toggle-line"></span>
+          <span class="nav-toggle-line"></span>
+          <span class="sr-only">Toggle navigation</span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu" data-nav-menu>
+          <a href="#features">Features</a>
+          <a href="#demo">Demo</a>
+          <a href="#performance">Pipeline</a>
+          <a href="#install">Install</a>
+          <a class="nav-cta" href="#install">Run it</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero section-band" id="top">
+        <div class="hero-grid">
+          <div class="hero-copy reveal">
+            <p class="eyebrow">OpenCV + NumPy + ANSI</p>
+            <h1>ascii-motion</h1>
+            <p class="hero-lede">
+              Video-to-ASCII playback for modern terminals, built for smooth frame pacing,
+              vectorized image processing, and low-flicker rendering.
+            </p>
+            <div class="hero-actions" aria-label="Primary actions">
+              <a class="button button-primary" href="#install">Install locally</a>
+              <a class="button button-ghost" href="#demo">Watch the terminal</a>
+            </div>
+            <div class="command-pill" aria-label="Quick start command">
+              <span class="prompt">$</span>
+              <code>ascii-motion video.mp4 --width 120 --benchmark</code>
+            </div>
+          </div>
+
+          <aside class="terminal-showcase reveal" aria-label="Animated ASCII terminal preview">
+            <div class="terminal-window">
+              <div class="terminal-titlebar">
+                <div class="window-controls" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="terminal-title">ghostty · zsh · ascii-motion</span>
+                <span class="fps-badge" data-fps-badge>60 FPS</span>
+              </div>
+              <pre class="ascii-stage" aria-hidden="true" data-ascii-stage></pre>
+              <div class="terminal-status">
+                <span>ANSI cursor home</span>
+                <span>no full clears</span>
+                <span>vectorized luminance</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="feature-strip section-band" id="features" aria-labelledby="features-title">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Designed for terminal playback</p>
+          <h2 id="features-title">Fast where the frame loop actually hurts.</h2>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <span class="feature-kicker">01</span>
+            <h3>Vectorized pixels</h3>
+            <p>
+              Frames are resized with OpenCV and mapped through NumPy arrays, avoiding
+              per-pixel Python loops.
+            </p>
+          </article>
+          <article class="feature-card reveal">
+            <span class="feature-kicker">02</span>
+            <h3>ANSI-native rendering</h3>
+            <p>
+              The renderer returns the cursor home with escape sequences instead of clearing
+              the full screen every frame.
+            </p>
+          </article>
+          <article class="feature-card reveal">
+            <span class="feature-kicker">03</span>
+            <h3>Frame pacing</h3>
+            <p>
+              A monotonic clock respects source FPS and skips sleeping when processing falls
+              behind.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="demo-section section-band" id="demo" aria-labelledby="demo-title">
+        <div class="demo-layout">
+          <div class="section-heading reveal">
+            <p class="eyebrow">Live browser simulation</p>
+            <h2 id="demo-title">The product signal is the terminal.</h2>
+            <p>
+              This page does not fake a video player. It previews the shape of the real CLI:
+              dense ASCII, a stable output surface, and motion that reads cleanly at terminal
+              scale.
+            </p>
+          </div>
+          <div class="code-panel reveal">
+            <div class="code-line">
+              <span class="prompt">$</span>
+              <code>ascii-motion input.mov --fit-terminal</code>
+            </div>
+            <div class="code-line muted">
+              <span class="prompt">></span>
+              <code>source_fps=29.97 width=132 charset=classic</code>
+            </div>
+            <div class="code-line muted">
+              <span class="prompt">></span>
+              <code>render=ANSI alternate_screen=true cursor=home</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pipeline-section section-band" id="performance" aria-labelledby="pipeline-title">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Pipeline</p>
+          <h2 id="pipeline-title">A small loop with strict responsibilities.</h2>
+        </div>
+        <div class="pipeline reveal" aria-label="Processing pipeline">
+          <span>VideoCapture</span>
+          <span>Resize</span>
+          <span>Luminance</span>
+          <span>LUT ASCII</span>
+          <span>ANSI Render</span>
+        </div>
+        <div class="metrics-grid">
+          <article class="metric reveal">
+            <strong>Rec. 709</strong>
+            <span>0.2126R + 0.7152G + 0.0722B</span>
+          </article>
+          <article class="metric reveal">
+            <strong>0 full clears</strong>
+            <span>after startup, every frame uses cursor repositioning</span>
+          </article>
+          <article class="metric reveal">
+            <strong>30/60 FPS</strong>
+            <span>source-aware pacing with optional override</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="install-section section-band" id="install" aria-labelledby="install-title">
+        <div class="install-card reveal">
+          <div>
+            <p class="eyebrow">Install</p>
+            <h2 id="install-title">Run it from a real terminal.</h2>
+            <p>
+              Clone the project, install it in editable mode, and point the CLI at a video
+              file or a camera index.
+            </p>
+          </div>
+          <div class="install-commands" aria-label="Installation commands">
+            <pre><code>python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+ascii-motion video.mp4 --width 120</code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <a class="brand footer-brand" href="#top" aria-label="ascii-motion home">
+          <span class="brand-mark" aria-hidden="true">▣</span>
+          <span>ascii-motion</span>
+        </a>
+        <p>Local-first video-to-ASCII playback. No GUI, no audio layer, just stdout.</p>
+      </div>
+      <div class="footer-links" aria-label="Footer navigation">
+        <a href="#features">Features</a>
+        <a href="#performance">Pipeline</a>
+        <a href="#install">Install</a>
+      </div>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
