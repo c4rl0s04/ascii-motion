@@ -1,6 +1,30 @@
 # ascii-motion
 
+[![Deploy landing page](https://github.com/c4rl0s04/ascii-motion/actions/workflows/pages.yml/badge.svg)](https://github.com/c4rl0s04/ascii-motion/actions/workflows/pages.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-8dffb1.svg)](LICENSE)
+[![Landing](https://img.shields.io/badge/site-GitHub%20Pages-6ee7f2.svg)](https://c4rl0s04.github.io/ascii-motion/)
+
 `ascii-motion` reproduce archivos de video como animaciones ASCII directamente en una terminal ANSI. El pipeline usa OpenCV para capturar frames, NumPy para procesarlos por matriz y secuencias ANSI para renderizar sin limpiar toda la pantalla en cada frame.
+
+## Landing Page
+
+La pagina promocional estatica esta en [`site/`](site/). Cuando GitHub Pages termine el despliegue, estara disponible en:
+
+https://c4rl0s04.github.io/ascii-motion/
+
+Para verla localmente:
+
+```bash
+python3 -m http.server 8765 --directory site
+```
+
+Abre `http://127.0.0.1:8765/` en el navegador.
+
+![ascii-motion landing desktop](docs/screenshots/landing-desktop.png)
+
+Vista movil:
+
+![ascii-motion landing mobile](docs/screenshots/landing-mobile.png)
 
 ## Instalacion
 

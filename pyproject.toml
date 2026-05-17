@@ -8,10 +8,34 @@ version = "0.1.0"
 description = "Reproduce videos como animaciones ASCII en terminales ANSI."
 readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Carlos Andres Huete" },
+]
+keywords = ["ascii", "terminal", "opencv", "video", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Terminals",
+]
 dependencies = [
     "numpy>=1.26.0",
     "opencv-python>=4.9.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/c4rl0s04/ascii-motion"
+Repository = "https://github.com/c4rl0s04/ascii-motion"
+Issues = "https://github.com/c4rl0s04/ascii-motion/issues"
+Landing = "https://c4rl0s04.github.io/ascii-motion/"
 
 [project.optional-dependencies]
 dev = [
