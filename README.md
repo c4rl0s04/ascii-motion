@@ -28,6 +28,21 @@ Vista movil:
 
 ## Instalacion
 
+Con Homebrew en macOS Apple Silicon:
+
+```bash
+brew install c4rl0s04/ascii-motion/ascii-motion
+```
+
+O bien:
+
+```bash
+brew tap c4rl0s04/ascii-motion
+brew install ascii-motion
+```
+
+Instalacion local para desarrollo:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
