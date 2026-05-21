@@ -14,6 +14,7 @@ ACTION_QUIT = "quit"
 ACTION_PAUSE = "pause"
 ACTION_BACKWARD = "backward"
 ACTION_FORWARD = "forward"
+ACTION_HELP = "help"
 
 
 class KeyboardController:
@@ -28,6 +29,7 @@ class KeyboardController:
         pause_key: str = " ",
         backward_key: str = "h",
         forward_key: str = "l",
+        help_key: str = "?",
         stdin: TextIO | None = None,
     ) -> None:
         if len(quit_key) != 1:
@@ -38,11 +40,14 @@ class KeyboardController:
             raise ValueError("La tecla de retroceso debe ser un unico caracter.")
         if len(forward_key) != 1:
             raise ValueError("La tecla de avance debe ser un unico caracter.")
+        if len(help_key) != 1:
+            raise ValueError("La tecla de ayuda debe ser un unico caracter.")
 
         self.quit_key = quit_key
         self.pause_key = pause_key
         self.backward_key = backward_key
         self.forward_key = forward_key
+        self.help_key = help_key
         self._stdin = stdin or sys.stdin
         self._fd: int | None = None
         self._previous_settings: list[int | bytes] | None = None
@@ -80,6 +85,8 @@ class KeyboardController:
             return ACTION_BACKWARD
         if key.lower() == self.forward_key.lower() or key == self.RIGHT_ARROW:
             return ACTION_FORWARD
+        if key.lower() == self.help_key.lower():
+            return ACTION_HELP
 
         return ACTION_NONE
 

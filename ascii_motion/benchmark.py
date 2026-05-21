@@ -7,10 +7,12 @@ from dataclasses import dataclass
 @dataclass
 class BenchmarkStats:
     frame_count: int = 0
+    skipped_frames: int = 0
     process_seconds: float = 0.0
     render_seconds: float = 0.0
     started_at: float = 0.0
     finished_at: float = 0.0
+    real_time: bool = False
 
     def start(self) -> None:
         self.started_at = time.perf_counter()

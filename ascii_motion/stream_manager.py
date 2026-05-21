@@ -18,6 +18,12 @@ class VideoMetadata:
     height: int
     frame_count: int
 
+    @property
+    def duration_seconds(self) -> float | None:
+        if self.fps <= 0 or self.frame_count <= 0:
+            return None
+        return self.frame_count / self.fps
+
 
 class StreamManager:
     """Thin wrapper around cv2.VideoCapture with frame-rate metadata."""
@@ -70,9 +76,7 @@ class StreamManager:
         return VideoMetadata(fps=fps, width=width, height=height, frame_count=frame_count)
 
     def seek(self, seconds: float) -> None:
-        if seconds <= 0:
-            return
-        self._capture.set(cv2.CAP_PROP_POS_MSEC, seconds * 1000.0)
+        self._capture.set(cv2.CAP_PROP_POS_MSEC, max(0.0, seconds) * 1000.0)
 
     def current_seconds(self) -> float:
         return float(self._capture.get(cv2.CAP_PROP_POS_MSEC) or 0.0) / 1000.0
@@ -80,6 +84,19 @@ class StreamManager:
     def seek_relative(self, offset_seconds: float) -> None:
         target_seconds = max(0.0, self.current_seconds() + offset_seconds)
         self._capture.set(cv2.CAP_PROP_POS_MSEC, target_seconds * 1000.0)
+
+    def skip_frames(self, frame_count: int) -> int:
+        skipped = 0
+        for _ in range(max(0, frame_count)):
+            if self._capture.grab():
+                skipped += 1
+                continue
+
+            ok, _frame = self._capture.read()
+            if not ok:
+                break
+            skipped += 1
+        return skipped
 
     def frames(self) -> Iterator[np.ndarray]:
         while True:
@@ -119,6 +136,16 @@ class FrameClock:
 
         if delay > 0:
             time.sleep(delay)
+
+    def lateness_seconds(self) -> float:
+        target_time = self.started_at + (self.frame_index * self.frame_interval)
+        return max(0.0, time.perf_counter() - target_time)
+
+    def frames_to_skip(self, max_skip: int = 120) -> int:
+        return min(max_skip, int(self.lateness_seconds() / self.frame_interval))
+
+    def advance(self, frame_count: int) -> None:
+        self.frame_index += max(0, frame_count)
 
     def reset(self) -> None:
         self.started_at = time.perf_counter()

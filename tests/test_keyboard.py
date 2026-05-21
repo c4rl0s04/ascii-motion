@@ -4,6 +4,7 @@ from ascii_motion import keyboard
 from ascii_motion.keyboard import (
     ACTION_BACKWARD,
     ACTION_FORWARD,
+    ACTION_HELP,
     ACTION_NONE,
     ACTION_PAUSE,
     ACTION_QUIT,
@@ -70,7 +71,7 @@ def test_keyboard_controller_ignores_other_keys(monkeypatch) -> None:
 
 
 def test_keyboard_controller_maps_playback_actions(monkeypatch) -> None:
-    stdin = FakeStdin(chars="q hl")
+    stdin = FakeStdin(chars="q hl?")
     controller = KeyboardController(stdin=stdin)
     patch_interactive_terminal(monkeypatch)
 
@@ -79,6 +80,7 @@ def test_keyboard_controller_maps_playback_actions(monkeypatch) -> None:
         assert controller.read_action() == ACTION_PAUSE
         assert controller.read_action() == ACTION_BACKWARD
         assert controller.read_action() == ACTION_FORWARD
+        assert controller.read_action() == ACTION_HELP
 
 
 def test_keyboard_controller_maps_arrow_keys(monkeypatch) -> None:

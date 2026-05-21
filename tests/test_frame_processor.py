@@ -79,6 +79,46 @@ def test_process_can_emit_truecolor_ansi_cells() -> None:
     )
 
 
+def test_process_can_emit_256_color_ansi_cells() -> None:
+    processor = FrameProcessor(FrameProcessorConfig(width=1, height=1, color_mode="256"))
+    frame = np.array([[[0, 0, 255]]], dtype=np.uint8)
+
+    assert processor.process(frame) == "\033[38;5;196m.\033[0m"
+
+
+def test_process_can_emit_grayscale_ansi_cells() -> None:
+    processor = FrameProcessor(FrameProcessorConfig(width=1, height=1, color_mode="grayscale"))
+    frame = np.array([[[255, 255, 255]]], dtype=np.uint8)
+
+    assert processor.process(frame) == "\033[38;5;255m@\033[0m"
+
+
+def test_edge_mode_emphasizes_boundaries() -> None:
+    processor = FrameProcessor(FrameProcessorConfig(width=3, height=3, processor_mode="edges"))
+    luminance = np.array(
+        [
+            [0, 0, 255],
+            [0, 0, 255],
+            [0, 0, 255],
+        ],
+        dtype=np.float32,
+    )
+
+    edges = processor._apply_processor_mode(luminance)
+
+    assert edges.max() == 255
+    assert edges[:, 1].mean() > edges[:, 0].mean()
+
+
+def test_ordered_dither_changes_luminance_matrix() -> None:
+    processor = FrameProcessor(FrameProcessorConfig(width=4, height=4, dither_mode="ordered"))
+    luminance = np.full((4, 4), 128, dtype=np.float32)
+
+    dithered = processor._apply_dither(luminance)
+
+    assert not np.array_equal(dithered, luminance)
+
+
 def test_invalid_color_mode_is_rejected() -> None:
     config = FrameProcessorConfig(width=2, color_mode="invalid")  # type: ignore[arg-type]
 

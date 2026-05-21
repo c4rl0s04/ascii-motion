@@ -38,6 +38,12 @@ class FakeCapture:
         self.index += 1
         return True, frame
 
+    def grab(self) -> bool:
+        if self.index >= len(self.frames):
+            return False
+        self.index += 1
+        return True
+
     def set(self, prop: int, value: float) -> None:
         self.set_calls.append((prop, value))
         if prop == stream_manager.cv2.CAP_PROP_POS_FRAMES:
@@ -109,6 +115,17 @@ def test_stream_manager_relative_seek_clamps_to_start(monkeypatch) -> None:
     assert fake.set_calls[-1] == (stream_manager.cv2.CAP_PROP_POS_MSEC, 0.0)
 
 
+def test_stream_manager_skips_frames_with_grab(monkeypatch) -> None:
+    frames = [np.zeros((1, 1, 3), dtype=np.uint8) for _ in range(3)]
+    fake = FakeCapture(frames=frames, fps=10.0)
+    monkeypatch.setattr(stream_manager.cv2, "VideoCapture", lambda _source: fake)
+
+    manager = StreamManager("0")
+
+    assert manager.skip_frames(2) == 2
+    assert fake.index == 2
+
+
 def test_frame_clock_sleeps_until_target_time(monkeypatch) -> None:
     perf_values = iter([10.0, 10.1])
     sleeps: list[float] = []
@@ -134,3 +151,14 @@ def test_frame_clock_reset_restarts_schedule(monkeypatch) -> None:
     clock.wait_next_frame()
 
     assert sleeps == []
+
+
+def test_frame_clock_reports_frames_to_skip_when_late(monkeypatch) -> None:
+    perf_values = iter([10.0, 10.45])
+
+    monkeypatch.setattr(stream_manager.time, "perf_counter", lambda: next(perf_values))
+
+    clock = FrameClock(fps=10.0)
+    clock.frame_index = 1
+
+    assert clock.frames_to_skip() == 3

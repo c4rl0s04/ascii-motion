@@ -83,10 +83,21 @@ ascii-motion video.mp4 --charset blocks
 ascii-motion video.mp4 --chars " .oO@" --invert
 ascii-motion video.mp4 --start 10 --duration 5
 ascii-motion video.mp4 --benchmark
+ascii-motion video.mp4 --real-time --benchmark
 ascii-motion video.mp4 --no-alt-screen
+ascii-motion video.mp4 --no-hud --no-progress
+ascii-motion video.mp4 --show-controls
 ascii-motion video.mp4 --color truecolor
+ascii-motion video.mp4 --color 256
+ascii-motion video.mp4 --mode edges
+ascii-motion video.mp4 --mode hybrid --dither ordered
 ascii-motion video.mp4 --quit-key q
 ascii-motion video.mp4 --pause-key p --seek-seconds 10
+ascii-motion video.mp4 --preview
+ascii-motion video.mp4 --frame-at 12.5
+ascii-motion video.mp4 --export animation.txt
+ascii-motion video.mp4 --export-ansi animation.ans
+ascii-motion video.mp4 --export-frames frames/
 ascii-motion --list-charsets
 ascii-motion --version
 ```
@@ -102,14 +113,27 @@ left arrow     retroceder
 right arrow    avanzar
 h              retroceder, fallback compatible
 l              avanzar, fallback compatible
+?              mostrar / ocultar controles
 ```
 
 `--seek-seconds` controla cuantos segundos avanza o retrocede cada salto. Por defecto son `5`.
 
+El HUD compacto y la barra de progreso estan activos por defecto cuando la duracion del video esta disponible. Se pueden ocultar con `--no-hud` y `--no-progress`. `--show-controls` muestra una linea de ayuda desde el inicio.
+
+Los modos no interactivos no usan pantalla alternativa ni teclado:
+
+```bash
+ascii-motion video.mp4 --preview
+ascii-motion video.mp4 --frame-at 5.0 --width 100
+ascii-motion video.mp4 --export output.txt
+ascii-motion video.mp4 --export-ansi output.ans --color 256
+ascii-motion video.mp4 --export-frames frames --start 2 --duration 4
+```
+
 ## Pipeline Tecnico
 
 ```text
-VideoCapture -> resize -> luminance -> LUT ASCII -> ANSI render
+VideoCapture -> resize -> luminance/edges/dither -> LUT ASCII -> ANSI render/export
 ```
 
 La luminancia se calcula con la formula Rec. 709:
@@ -125,6 +149,10 @@ OpenCV entrega frames en formato BGR, por lo que el procesador toma `R` desde el
 El mapeo de escala de grises a caracteres se realiza con NumPy sobre matrices completas. No hay bucles `for` anidados iterando pixel por pixel. La conversion final a texto trabaja por filas, que es el punto razonable de cruce entre matriz y salida estandar.
 
 El renderizado evita flickering usando `\033[H` para reposicionar el cursor en la esquina superior izquierda antes de escribir cada frame. La pantalla completa solo se limpia al iniciar. Por defecto se usa alternate screen para no ensuciar el scrollback y para restaurar mejor la terminal al salir.
+
+`--real-time` permite saltar frames cuando el procesamiento o la terminal van tarde, priorizando mantener el tiempo real sobre renderizar cada frame de entrada.
+
+`--mode edges` usa gradientes Sobel para enfatizar contornos. `--mode hybrid` mezcla luminancia y bordes. `--dither ordered` aplica dithering Bayer vectorizado antes del mapeo a caracteres. Los modos de color disponibles son `none`, `truecolor`, `256` y `grayscale`.
 
 Para medir el coste del pipeline:
 
