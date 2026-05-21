@@ -27,6 +27,8 @@ class FakeCapture:
             return 360
         if prop == stream_manager.cv2.CAP_PROP_FRAME_COUNT:
             return len(self.frames)
+        if prop == stream_manager.cv2.CAP_PROP_POS_MSEC:
+            return (self.index / self.fps) * 1000.0
         return 0
 
     def read(self) -> tuple[bool, np.ndarray | None]:
@@ -40,6 +42,8 @@ class FakeCapture:
         self.set_calls.append((prop, value))
         if prop == stream_manager.cv2.CAP_PROP_POS_FRAMES:
             self.index = int(value)
+        if prop == stream_manager.cv2.CAP_PROP_POS_MSEC:
+            self.index = max(0, int((value / 1000.0) * self.fps))
 
     def release(self) -> None:
         self.released = True
@@ -81,6 +85,30 @@ def test_validate_file_source_rejects_missing_path() -> None:
         StreamManager.validate_file_source("/path/that/does/not/exist.mp4")
 
 
+def test_stream_manager_seeks_relative_to_current_position(monkeypatch) -> None:
+    frames = [np.zeros((1, 1, 3), dtype=np.uint8) for _ in range(20)]
+    fake = FakeCapture(frames=frames, fps=10.0)
+    fake.index = 5
+    monkeypatch.setattr(stream_manager.cv2, "VideoCapture", lambda _source: fake)
+
+    manager = StreamManager("0")
+    manager.seek_relative(2.0)
+
+    assert fake.set_calls[-1] == (stream_manager.cv2.CAP_PROP_POS_MSEC, 2500.0)
+
+
+def test_stream_manager_relative_seek_clamps_to_start(monkeypatch) -> None:
+    frames = [np.zeros((1, 1, 3), dtype=np.uint8) for _ in range(20)]
+    fake = FakeCapture(frames=frames, fps=10.0)
+    fake.index = 5
+    monkeypatch.setattr(stream_manager.cv2, "VideoCapture", lambda _source: fake)
+
+    manager = StreamManager("0")
+    manager.seek_relative(-10.0)
+
+    assert fake.set_calls[-1] == (stream_manager.cv2.CAP_PROP_POS_MSEC, 0.0)
+
+
 def test_frame_clock_sleeps_until_target_time(monkeypatch) -> None:
     perf_values = iter([10.0, 10.1])
     sleeps: list[float] = []
@@ -92,3 +120,17 @@ def test_frame_clock_sleeps_until_target_time(monkeypatch) -> None:
     clock.wait_next_frame()
 
     assert sleeps == [pytest.approx(0.4)]
+
+
+def test_frame_clock_reset_restarts_schedule(monkeypatch) -> None:
+    perf_values = iter([10.0, 10.2, 10.3])
+    sleeps: list[float] = []
+
+    monkeypatch.setattr(stream_manager.time, "perf_counter", lambda: next(perf_values))
+    monkeypatch.setattr(stream_manager.time, "sleep", sleeps.append)
+
+    clock = FrameClock(fps=10.0)
+    clock.reset()
+    clock.wait_next_frame()
+
+    assert sleeps == []

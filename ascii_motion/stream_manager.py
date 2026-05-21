@@ -74,6 +74,13 @@ class StreamManager:
             return
         self._capture.set(cv2.CAP_PROP_POS_MSEC, seconds * 1000.0)
 
+    def current_seconds(self) -> float:
+        return float(self._capture.get(cv2.CAP_PROP_POS_MSEC) or 0.0) / 1000.0
+
+    def seek_relative(self, offset_seconds: float) -> None:
+        target_seconds = max(0.0, self.current_seconds() + offset_seconds)
+        self._capture.set(cv2.CAP_PROP_POS_MSEC, target_seconds * 1000.0)
+
     def frames(self) -> Iterator[np.ndarray]:
         while True:
             ok, frame = self._capture.read()
@@ -112,3 +119,7 @@ class FrameClock:
 
         if delay > 0:
             time.sleep(delay)
+
+    def reset(self) -> None:
+        self.started_at = time.perf_counter()
+        self.frame_index = 0

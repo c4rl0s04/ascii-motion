@@ -101,7 +101,7 @@ def draw_terminal(ascii_frame: str, frame_index: int, font: ImageFont.ImageFont)
 
     draw.text(
         (shell[0] + 22, shell[3] - 34),
-        "press q to quit · ANSI cursor home · vectorized luminance",
+        "q quit · space pause · arrows seek · vectorized luminance",
         fill="#708077",
         font=font,
     )

@@ -9,9 +9,17 @@ from . import __version__
 from .benchmark import BenchmarkStats
 from .charsets import CHARSETS, DEFAULT_CHARSET_NAME
 from .frame_processor import FrameProcessor, FrameProcessorConfig
-from .keyboard import KeyboardController
+from .keyboard import (
+    ACTION_BACKWARD,
+    ACTION_FORWARD,
+    ACTION_PAUSE,
+    ACTION_QUIT,
+    KeyboardController,
+)
 from .stream_manager import FrameClock, StreamManager
 from .terminal_renderer import TerminalRenderer
+
+PAUSE_POLL_SECONDS = 0.03
 
 
 def positive_float(value: str) -> float:
@@ -157,6 +165,30 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         default="q",
         help="Tecla para salir durante la reproduccion. Por defecto: q.",
     )
+    parser.add_argument(
+        "--pause-key",
+        type=single_character,
+        default=" ",
+        help="Tecla para pausar o reanudar. Por defecto: espacio.",
+    )
+    parser.add_argument(
+        "--backward-key",
+        type=single_character,
+        default="h",
+        help="Tecla para retroceder durante la reproduccion. Por defecto: h.",
+    )
+    parser.add_argument(
+        "--forward-key",
+        type=single_character,
+        default="l",
+        help="Tecla para avanzar durante la reproduccion. Por defecto: l.",
+    )
+    parser.add_argument(
+        "--seek-seconds",
+        type=positive_float,
+        default=5.0,
+        help="Segundos que avanza o retrocede cada salto. Por defecto: 5.",
+    )
     return parser.parse_args(argv)
 
 
@@ -209,14 +241,48 @@ def run(args: argparse.Namespace) -> int:
 
         stats.start()
         with (
-            KeyboardController(quit_key=args.quit_key) as keyboard,
+            KeyboardController(
+                quit_key=args.quit_key,
+                pause_key=args.pause_key,
+                backward_key=args.backward_key,
+                forward_key=args.forward_key,
+            ) as keyboard,
             TerminalRenderer(use_alt_screen=not args.no_alt_screen) as renderer,
         ):
-            for frame in stream.frames():
-                if keyboard.should_quit():
+            frames = stream.frames()
+            paused = False
+            paused_at: float | None = None
+
+            while True:
+                action = keyboard.read_action()
+                if action == ACTION_QUIT:
                     break
+                if action == ACTION_PAUSE:
+                    paused = not paused
+                    if paused:
+                        paused_at = time.perf_counter()
+                    else:
+                        if deadline is not None and paused_at is not None:
+                            deadline += time.perf_counter() - paused_at
+                        paused_at = None
+                        clock.reset()
+                elif action == ACTION_BACKWARD:
+                    stream.seek_relative(-args.seek_seconds)
+                    clock.reset()
+                elif action == ACTION_FORWARD:
+                    stream.seek_relative(args.seek_seconds)
+                    clock.reset()
+
+                if paused:
+                    time.sleep(PAUSE_POLL_SECONDS)
+                    continue
 
                 if deadline is not None and time.perf_counter() >= deadline:
+                    break
+
+                try:
+                    frame = next(frames)
+                except StopIteration:
                     break
 
                 process_started = time.perf_counter()

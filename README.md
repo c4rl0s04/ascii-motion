@@ -86,13 +86,25 @@ ascii-motion video.mp4 --benchmark
 ascii-motion video.mp4 --no-alt-screen
 ascii-motion video.mp4 --color truecolor
 ascii-motion video.mp4 --quit-key q
+ascii-motion video.mp4 --pause-key p --seek-seconds 10
 ascii-motion --list-charsets
 ascii-motion --version
 ```
 
 `--fit-terminal` fuerza el tamano de salida al ancho y alto actuales de la terminal. Sin esa opcion, el ancho por defecto es el ancho de terminal y la altura se calcula preservando el aspecto visual del video.
 
-Durante la reproduccion interactiva puedes pulsar `q` para salir sin esperar a que termine el video.
+Durante la reproduccion interactiva puedes usar estos controles:
+
+```text
+q              salir
+space          pausar / reanudar
+left arrow     retroceder
+right arrow    avanzar
+h              retroceder, fallback compatible
+l              avanzar, fallback compatible
+```
+
+`--seek-seconds` controla cuantos segundos avanza o retrocede cada salto. Por defecto son `5`.
 
 ## Pipeline Tecnico
 

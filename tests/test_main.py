@@ -42,6 +42,32 @@ def test_parse_args_rejects_multi_character_quit_key() -> None:
         parse_args(["video.mp4", "--quit-key", "esc"])
 
 
+def test_parse_args_accepts_playback_control_options() -> None:
+    args = parse_args(
+        [
+            "video.mp4",
+            "--pause-key",
+            "p",
+            "--backward-key",
+            "j",
+            "--forward-key",
+            "k",
+            "--seek-seconds",
+            "2.5",
+        ]
+    )
+
+    assert args.pause_key == "p"
+    assert args.backward_key == "j"
+    assert args.forward_key == "k"
+    assert args.seek_seconds == 2.5
+
+
+def test_parse_args_rejects_invalid_seek_seconds() -> None:
+    with pytest.raises(SystemExit):
+        parse_args(["video.mp4", "--seek-seconds", "0"])
+
+
 def test_list_charsets_does_not_require_source(capsys) -> None:
     assert main(["--list-charsets"]) == 0
 
