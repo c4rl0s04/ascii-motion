@@ -1,6 +1,7 @@
 # ascii-motion
 
 [![Deploy landing page](https://github.com/c4rl0s04/ascii-motion/actions/workflows/pages.yml/badge.svg)](https://github.com/c4rl0s04/ascii-motion/actions/workflows/pages.yml)
+[![CI](https://github.com/c4rl0s04/ascii-motion/actions/workflows/ci.yml/badge.svg)](https://github.com/c4rl0s04/ascii-motion/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-8dffb1.svg)](LICENSE)
 [![Landing](https://img.shields.io/badge/site-GitHub%20Pages-6ee7f2.svg)](https://c4rl0s04.github.io/ascii-motion/)
 
