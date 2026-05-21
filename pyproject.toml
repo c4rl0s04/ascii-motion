@@ -39,6 +39,7 @@ Landing = "https://c4rl0s04.github.io/ascii-motion/"
 [project.optional-dependencies]
 dev = [
     "build>=1.2.0",
+    "Pillow>=10.0.0",
     "pytest>=8.0.0",
     "ruff>=0.6.0",
     "twine>=5.0.0",

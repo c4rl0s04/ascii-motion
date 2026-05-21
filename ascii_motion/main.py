@@ -9,6 +9,7 @@ from . import __version__
 from .benchmark import BenchmarkStats
 from .charsets import CHARSETS, DEFAULT_CHARSET_NAME
 from .frame_processor import FrameProcessor, FrameProcessorConfig
+from .keyboard import KeyboardController
 from .stream_manager import FrameClock, StreamManager
 from .terminal_renderer import TerminalRenderer
 
@@ -32,6 +33,12 @@ def non_negative_float(value: str) -> float:
     if parsed < 0:
         raise argparse.ArgumentTypeError("no puede ser negativo")
     return parsed
+
+
+def single_character(value: str) -> str:
+    if len(value) != 1:
+        raise argparse.ArgumentTypeError("debe ser un unico caracter")
+    return value
 
 
 def resolve_ascii_chars(charset: str, chars: str | None) -> str:
@@ -144,6 +151,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Muestra metricas de rendimiento al terminar.",
     )
+    parser.add_argument(
+        "--quit-key",
+        type=single_character,
+        default="q",
+        help="Tecla para salir durante la reproduccion. Por defecto: q.",
+    )
     return parser.parse_args(argv)
 
 
@@ -195,8 +208,14 @@ def run(args: argparse.Namespace) -> int:
         deadline = None if args.duration is None else time.perf_counter() + args.duration
 
         stats.start()
-        with TerminalRenderer(use_alt_screen=not args.no_alt_screen) as renderer:
+        with (
+            KeyboardController(quit_key=args.quit_key) as keyboard,
+            TerminalRenderer(use_alt_screen=not args.no_alt_screen) as renderer,
+        ):
             for frame in stream.frames():
+                if keyboard.should_quit():
+                    break
+
                 if deadline is not None and time.perf_counter() >= deadline:
                     break
 

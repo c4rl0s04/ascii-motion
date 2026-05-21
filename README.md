@@ -7,6 +7,8 @@
 
 `ascii-motion` reproduce archivos de video como animaciones ASCII directamente en una terminal ANSI. El pipeline usa OpenCV para capturar frames, NumPy para procesarlos por matriz y secuencias ANSI para renderizar sin limpiar toda la pantalla en cada frame.
 
+![ascii-motion terminal demo](docs/demo/ascii-motion-demo.gif)
+
 ## Landing Page
 
 La pagina promocional estatica esta en [`site/`](site/). Cuando GitHub Pages termine el despliegue, estara disponible en:
@@ -83,11 +85,14 @@ ascii-motion video.mp4 --start 10 --duration 5
 ascii-motion video.mp4 --benchmark
 ascii-motion video.mp4 --no-alt-screen
 ascii-motion video.mp4 --color truecolor
+ascii-motion video.mp4 --quit-key q
 ascii-motion --list-charsets
 ascii-motion --version
 ```
 
 `--fit-terminal` fuerza el tamano de salida al ancho y alto actuales de la terminal. Sin esa opcion, el ancho por defecto es el ancho de terminal y la altura se calcula preservando el aspecto visual del video.
+
+Durante la reproduccion interactiva puedes pulsar `q` para salir sin esperar a que termine el video.
 
 ## Pipeline Tecnico
 

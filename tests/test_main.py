@@ -31,6 +31,17 @@ def test_parse_args_accepts_truecolor_mode() -> None:
     assert args.color == "truecolor"
 
 
+def test_parse_args_accepts_custom_quit_key() -> None:
+    args = parse_args(["video.mp4", "--quit-key", "x"])
+
+    assert args.quit_key == "x"
+
+
+def test_parse_args_rejects_multi_character_quit_key() -> None:
+    with pytest.raises(SystemExit):
+        parse_args(["video.mp4", "--quit-key", "esc"])
+
+
 def test_list_charsets_does_not_require_source(capsys) -> None:
     assert main(["--list-charsets"]) == 0
 
