@@ -5,6 +5,7 @@ import sys
 import time
 from collections.abc import Sequence
 
+from . import __version__
 from .benchmark import BenchmarkStats
 from .charsets import CHARSETS, DEFAULT_CHARSET_NAME
 from .frame_processor import FrameProcessor, FrameProcessorConfig
@@ -49,12 +50,35 @@ def resolve_ascii_chars(charset: str, chars: str | None) -> str:
     return resolved
 
 
+def format_charsets() -> str:
+    lines = ["Available charsets:"]
+    for name, chars in CHARSETS.items():
+        preview = chars.replace(" ", "·")
+        lines.append(f"  {name:<7} {preview}")
+    lines.append("  custom  use --charset custom --chars \"...\"")
+    return "\n".join(lines)
+
+
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="ascii-motion",
         description="Reproduce videos como animaciones ASCII en la terminal.",
     )
-    parser.add_argument("source", help="Ruta del video o indice de camara, por ejemplo: 0")
+    parser.add_argument(
+        "source",
+        nargs="?",
+        help="Ruta del video o indice de camara, por ejemplo: 0",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+    parser.add_argument(
+        "--list-charsets",
+        action="store_true",
+        help="Lista las escalas ASCII disponibles y termina.",
+    )
     parser.add_argument(
         "-w",
         "--width",
@@ -147,6 +171,13 @@ def print_benchmark(stats: BenchmarkStats) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
+    if args.list_charsets:
+        print(format_charsets())
+        return 0
+
+    if args.source is None:
+        raise ValueError("Debes indicar una ruta de video o indice de camara.")
+
     StreamManager.validate_file_source(args.source)
     processor = FrameProcessor(build_processor_config(args))
     stats = BenchmarkStats()

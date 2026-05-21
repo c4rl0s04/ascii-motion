@@ -82,6 +82,8 @@ ascii-motion video.mp4 --chars " .oO@" --invert
 ascii-motion video.mp4 --start 10 --duration 5
 ascii-motion video.mp4 --benchmark
 ascii-motion video.mp4 --no-alt-screen
+ascii-motion --list-charsets
+ascii-motion --version
 ```
 
 `--fit-terminal` fuerza el tamano de salida al ancho y alto actuales de la terminal. Sin esa opcion, el ancho por defecto es el ancho de terminal y la altura se calcula preservando el aspecto visual del video.
