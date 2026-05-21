@@ -1,15 +1,46 @@
 const stage = document.querySelector("[data-ascii-stage]");
 const fpsBadge = document.querySelector("[data-fps-badge]");
+const terminalHud = document.querySelector("[data-terminal-hud]");
 const header = document.querySelector("[data-header]");
 const navToggle = document.querySelector("[data-nav-toggle]");
 const navMenu = document.querySelector("[data-nav-menu]");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const chars = " .:-=+*#%@";
+const modes = ["ascii", "edges", "hybrid", "hybrid"];
+const colors = ["none", "256", "truecolor", "grayscale"];
 let frame = 0;
 let lastTick = 0;
 let renderedFrames = 0;
 let fpsStartedAt = performance.now();
+
+function formatTime(seconds) {
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const remainder = safeSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+}
+
+function updateTerminalHud(time) {
+  if (!terminalHud) {
+    return;
+  }
+
+  const progress = (Math.sin(frame * 0.035) * 0.5 + 0.5) * 0.82;
+  const currentSeconds = progress * 20;
+  const filled = Math.round(progress * 28);
+  const state = Math.floor(time / 3600) % 4 === 1 ? "paused" : "playing";
+  const skipped = Math.floor(Math.max(0, Math.sin(frame * 0.05)) * 8);
+  const mode = modes[Math.floor(frame / 72) % modes.length];
+  const color = colors[Math.floor(frame / 96) % colors.length];
+  const bar = `${"#".repeat(filled)}${"-".repeat(28 - filled)}`;
+
+  terminalHud.innerHTML = `
+    <span>${formatTime(currentSeconds)} / 00:20 | 59.8/60.0 FPS | 120x34 | ${mode} | ${color} | skipped=${skipped} | ${state}</span>
+    <span>[${bar}] ${(progress * 100).toFixed(1)}%</span>
+    <span>q quit | space pause | left/right seek | h/l fallback | ? help</span>
+  `;
+}
 
 function renderAscii(time) {
   if (!stage) {
@@ -60,6 +91,7 @@ function renderAscii(time) {
     cursorLine.slice(0, cursorCol) + "█" + cursorLine.slice(cursorCol + 1);
 
   stage.textContent = lines.join("\n");
+  updateTerminalHud(time);
 
   if (fpsBadge && time - fpsStartedAt > 700) {
     const fps = Math.round((renderedFrames * 1000) / (time - fpsStartedAt));
