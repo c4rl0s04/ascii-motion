@@ -82,6 +82,7 @@ ascii-motion video.mp4 --chars " .oO@" --invert
 ascii-motion video.mp4 --start 10 --duration 5
 ascii-motion video.mp4 --benchmark
 ascii-motion video.mp4 --no-alt-screen
+ascii-motion video.mp4 --color truecolor
 ascii-motion --list-charsets
 ascii-motion --version
 ```

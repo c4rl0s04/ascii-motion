@@ -120,6 +120,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Escala personalizada de caracteres de oscuro a claro.",
     )
     parser.add_argument("--invert", action="store_true", help="Invierte la escala ASCII.")
+    parser.add_argument(
+        "--color",
+        choices=("none", "truecolor"),
+        default="none",
+        help="Modo de color ANSI. Por defecto no aplica color.",
+    )
     parser.add_argument("--loop", action="store_true", help="Reproduce el video en bucle.")
     parser.add_argument(
         "--start",
@@ -155,6 +161,7 @@ def build_processor_config(args: argparse.Namespace) -> FrameProcessorConfig:
         height=height,
         ascii_chars=resolve_ascii_chars(args.charset, args.chars),
         invert=args.invert,
+        color_mode=args.color,
     )
 
 

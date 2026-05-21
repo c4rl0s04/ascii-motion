@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 import cv2
 import numpy as np
 
 from .charsets import DEFAULT_ASCII_CHARS
+
+ColorMode = Literal["none", "truecolor"]
+ANSI_RESET = "\033[0m"
 
 
 @dataclass(frozen=True)
@@ -14,6 +18,7 @@ class FrameProcessorConfig:
     height: int | None = None
     ascii_chars: str = DEFAULT_ASCII_CHARS
     invert: bool = False
+    color_mode: ColorMode = "none"
     terminal_char_aspect: float = 0.5
 
 
@@ -33,6 +38,9 @@ class FrameProcessor:
         if len(config.ascii_chars) < 2:
             raise ValueError("La escala ASCII debe contener al menos dos caracteres.")
 
+        if config.color_mode not in ("none", "truecolor"):
+            raise ValueError("El modo de color debe ser 'none' o 'truecolor'.")
+
         self.config = config
         chars = config.ascii_chars[::-1] if config.invert else config.ascii_chars
         self._ascii_lut = np.array(list(chars), dtype="<U1")
@@ -41,6 +49,10 @@ class FrameProcessor:
         resized = self._resize_preserving_terminal_aspect(frame_bgr)
         luminance = self._luminance_from_bgr(resized)
         char_matrix = self._map_luminance_to_ascii(luminance)
+
+        if self.config.color_mode == "truecolor":
+            return self._ascii_matrix_to_truecolor_text(char_matrix, resized)
+
         return self._ascii_matrix_to_text(char_matrix)
 
     def _resize_preserving_terminal_aspect(self, frame_bgr: np.ndarray) -> np.ndarray:
@@ -80,3 +92,17 @@ class FrameProcessor:
     @staticmethod
     def _ascii_matrix_to_text(char_matrix: np.ndarray) -> str:
         return "\n".join("".join(row) for row in char_matrix)
+
+    @staticmethod
+    def _ascii_matrix_to_truecolor_text(char_matrix: np.ndarray, frame_bgr: np.ndarray) -> str:
+        frame_rgb = frame_bgr[:, :, ::-1].astype(np.uint8, copy=False)
+        lines = []
+
+        for char_row, color_row in zip(char_matrix, frame_rgb, strict=True):
+            cells = [
+                f"\033[38;2;{red};{green};{blue}m{char}"
+                for char, (red, green, blue) in zip(char_row, color_row, strict=True)
+            ]
+            lines.append("".join(cells) + ANSI_RESET)
+
+        return "\n".join(lines)

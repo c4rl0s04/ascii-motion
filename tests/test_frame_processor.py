@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ascii_motion.frame_processor import FrameProcessor, FrameProcessorConfig
+from ascii_motion.frame_processor import ANSI_RESET, FrameProcessor, FrameProcessorConfig
 
 
 def test_luminance_uses_rec_709_coefficients_for_bgr_frames() -> None:
@@ -64,3 +64,27 @@ def test_process_returns_text_without_pixel_nested_loops() -> None:
     frame = np.array([[[0, 0, 0], [255, 255, 255]]], dtype=np.uint8)
 
     assert processor.process(frame) == " #"
+
+
+def test_process_can_emit_truecolor_ansi_cells() -> None:
+    processor = FrameProcessor(
+        FrameProcessorConfig(width=2, height=1, ascii_chars=" .#", color_mode="truecolor")
+    )
+    frame = np.array([[[10, 20, 30], [200, 210, 220]]], dtype=np.uint8)
+
+    assert processor.process(frame) == (
+        "\033[38;2;30;20;10m "
+        "\033[38;2;220;210;200m."
+        f"{ANSI_RESET}"
+    )
+
+
+def test_invalid_color_mode_is_rejected() -> None:
+    config = FrameProcessorConfig(width=2, color_mode="invalid")  # type: ignore[arg-type]
+
+    try:
+        FrameProcessor(config)
+    except ValueError as exc:
+        assert "modo de color" in str(exc)
+    else:
+        raise AssertionError("Expected invalid color mode to fail.")

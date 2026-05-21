@@ -25,6 +25,12 @@ def test_charset_can_be_overridden_with_chars() -> None:
     assert resolve_ascii_chars("classic", "ab") == "ab"
 
 
+def test_parse_args_accepts_truecolor_mode() -> None:
+    args = parse_args(["video.mp4", "--color", "truecolor"])
+
+    assert args.color == "truecolor"
+
+
 def test_list_charsets_does_not_require_source(capsys) -> None:
     assert main(["--list-charsets"]) == 0
 
