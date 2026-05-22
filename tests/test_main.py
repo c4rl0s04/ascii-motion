@@ -9,6 +9,7 @@ from ascii_motion.main import (
     main,
     parse_args,
     resolve_ascii_chars,
+    should_skip_late_frames,
     validate_output_mode,
 )
 
@@ -133,6 +134,7 @@ def test_parse_args_accepts_hud_and_export_options() -> None:
             "--help-key",
             "!",
             "--real-time",
+            "--no-frame-skip",
             "--export",
             "out.txt",
         ]
@@ -143,6 +145,7 @@ def test_parse_args_accepts_hud_and_export_options() -> None:
     assert args.show_controls
     assert args.help_key == "!"
     assert args.real_time
+    assert args.no_frame_skip
     assert args.export == "out.txt"
 
 
@@ -156,6 +159,18 @@ def test_validate_output_mode_rejects_conflicting_exports() -> None:
 
     with pytest.raises(ValueError, match="modo de salida"):
         validate_output_mode(args)
+
+
+def test_frame_skipping_is_enabled_by_default() -> None:
+    args = parse_args(["video.mp4"])
+
+    assert should_skip_late_frames(args)
+
+
+def test_frame_skipping_can_be_disabled() -> None:
+    args = parse_args(["video.mp4", "--no-frame-skip"])
+
+    assert not should_skip_late_frames(args)
 
 
 def test_list_charsets_does_not_require_source(capsys) -> None:

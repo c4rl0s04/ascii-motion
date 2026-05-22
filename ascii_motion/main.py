@@ -187,7 +187,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--real-time",
         action="store_true",
-        help="Salta frames si el renderizado va tarde para mantener tiempo real.",
+        help="Mantiene tiempo real saltando frames si el renderizado va tarde. Activo por defecto.",
+    )
+    parser.add_argument(
+        "--no-frame-skip",
+        action="store_true",
+        help="Renderiza todos los frames aunque la reproduccion tarde mas que el video original.",
     )
     parser.add_argument("--preview", action="store_true", help="Muestra metadatos y termina.")
     parser.add_argument(
@@ -287,6 +292,10 @@ def print_benchmark(stats: BenchmarkStats) -> None:
     )
 
 
+def should_skip_late_frames(args: argparse.Namespace) -> bool:
+    return args.real_time or not args.no_frame_skip
+
+
 def validate_output_mode(args: argparse.Namespace) -> None:
     modes = [
         args.preview,
@@ -340,6 +349,35 @@ def playback_status(
         color_mode=args.color,
         processor_mode=args.mode,
         skipped_frames=stats.skipped_frames,
+    )
+
+
+def render_playback_frame(
+    args: argparse.Namespace,
+    renderer: TerminalRenderer,
+    ascii_frame: str,
+    stream: StreamManager,
+    processor: FrameProcessor,
+    stats: BenchmarkStats,
+    target_fps: float,
+    paused: bool,
+    controls_visible: bool,
+) -> None:
+    renderer.render(
+        ascii_frame,
+        status=playback_status(
+            args,
+            stream,
+            processor,
+            stats,
+            target_fps,
+            paused,
+            max((len(line) for line in ascii_frame.splitlines()), default=0),
+            ascii_frame.count("\n") + 1,
+        ),
+        show_hud=show_hud(args),
+        show_progress=show_progress(args, stream.metadata.duration_seconds),
+        show_controls=controls_visible,
     )
 
 
@@ -460,7 +498,7 @@ def run(args: argparse.Namespace) -> int:
 
     StreamManager.validate_file_source(args.source)
     stats = BenchmarkStats()
-    stats.real_time = args.real_time
+    stats.real_time = should_skip_late_frames(args)
 
     with StreamManager(args.source, loop=args.loop) as stream:
         processor = FrameProcessor(
@@ -489,6 +527,7 @@ def run(args: argparse.Namespace) -> int:
             paused = False
             paused_at: float | None = None
             controls_visible = args.show_controls
+            last_ascii_frame: str | None = None
 
             while True:
                 action = keyboard.read_action()
@@ -503,6 +542,18 @@ def run(args: argparse.Namespace) -> int:
                             deadline += time.perf_counter() - paused_at
                         paused_at = None
                         clock.reset()
+                    if last_ascii_frame is not None:
+                        render_playback_frame(
+                            args,
+                            renderer,
+                            last_ascii_frame,
+                            stream,
+                            processor,
+                            stats,
+                            target_fps,
+                            paused,
+                            controls_visible,
+                        )
                 elif action == ACTION_BACKWARD:
                     stream.seek_relative(-args.seek_seconds)
                     clock.reset()
@@ -533,30 +584,26 @@ def run(args: argparse.Namespace) -> int:
 
                 process_started = time.perf_counter()
                 ascii_frame = processor.process(frame)
+                last_ascii_frame = ascii_frame
                 stats.process_seconds += time.perf_counter() - process_started
 
                 render_started = time.perf_counter()
-                renderer.render(
+                render_playback_frame(
+                    args,
+                    renderer,
                     ascii_frame,
-                    status=playback_status(
-                        args,
-                        stream,
-                        processor,
-                        stats,
-                        target_fps,
-                        paused,
-                        max((len(line) for line in ascii_frame.splitlines()), default=0),
-                        ascii_frame.count("\n") + 1,
-                    ),
-                    show_hud=show_hud(args),
-                    show_progress=show_progress(args, stream.metadata.duration_seconds),
-                    show_controls=controls_visible,
+                    stream,
+                    processor,
+                    stats,
+                    target_fps,
+                    paused,
+                    controls_visible,
                 )
                 stats.render_seconds += time.perf_counter() - render_started
 
                 stats.frame_count += 1
                 clock.wait_next_frame()
-                if args.real_time and not paused:
+                if should_skip_late_frames(args) and not paused:
                     skipped = stream.skip_frames(clock.frames_to_skip())
                     stats.skipped_frames += skipped
                     clock.advance(skipped)

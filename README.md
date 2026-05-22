@@ -100,7 +100,8 @@ ascii-motion 0 --width 100
 - `--start SECONDS`: start playback from a timestamp.
 - `--duration SECONDS`: stop playback after the given duration.
 - `--loop`: restart the source when it reaches the end.
-- `--real-time`: skip source frames when processing or terminal output falls behind wall-clock playback.
+- `--real-time`: explicitly keep wall-clock playback by skipping source frames when processing or terminal output falls behind. This is also the default behavior.
+- `--no-frame-skip`: render every source frame even if playback takes longer than the original video.
 
 Examples:
 
@@ -109,6 +110,7 @@ ascii-motion video.mp4 --fps 60
 ascii-motion video.mp4 --start 10 --duration 5
 ascii-motion video.mp4 --loop
 ascii-motion video.mp4 --real-time --benchmark
+ascii-motion video.mp4 --no-frame-skip --benchmark
 ```
 
 ### Interactive Controls
@@ -248,7 +250,7 @@ OpenCV provides frames in BGR order, so the processor reads `R` from channel `2`
 
 Grayscale-to-character mapping is performed with NumPy over full matrices. There are no nested Python loops walking pixel by pixel. Final text conversion happens by row, which is the practical boundary between matrix processing and terminal output.
 
-`--real-time` can skip frames when processing or terminal rendering is late. This prioritizes wall-clock playback over rendering every source frame.
+By default, playback can skip frames when processing or terminal rendering is late. This keeps the ASCII video close to the original duration. Use `--no-frame-skip` when you prefer to render every source frame even if terminal output is too slow.
 
 `--mode edges` uses Sobel gradients to emphasize contours. `--mode hybrid` blends luminance and edges. `--dither ordered` applies vectorized Bayer dithering before character mapping.
 
