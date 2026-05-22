@@ -83,7 +83,7 @@ python -m ascii_motion video.mp4
 - `--height ROWS`: target ASCII height. If omitted, height is calculated from the source aspect ratio.
 - `--fit-terminal`: fit output to the current terminal size. When HUD/progress are visible, rows are reserved for those lines.
 
-Terminal characters are usually taller than they are wide, so automatic height uses a `0.5` character aspect correction.
+Terminal characters are usually taller than they are wide, so automatic height uses a `0.5` character aspect correction. With no explicit `--width` or `--height`, vertical videos are also capped to the current terminal height so the default playback fits the visible terminal.
 
 Examples:
 

@@ -41,6 +41,27 @@ def test_resize_height_accounts_for_terminal_character_aspect(monkeypatch) -> No
     assert resized.shape == (28, 100, 3)
 
 
+def test_auto_resize_can_fit_vertical_video_within_max_height(monkeypatch) -> None:
+    captured_size = None
+
+    def fake_resize(frame: np.ndarray, size: tuple[int, int], interpolation: int) -> np.ndarray:
+        nonlocal captured_size
+        captured_size = size
+        return np.zeros((size[1], size[0], 3), dtype=frame.dtype)
+
+    monkeypatch.setattr("ascii_motion.frame_processor.cv2.resize", fake_resize)
+
+    processor = FrameProcessor(
+        FrameProcessorConfig(width=80, max_height=20, terminal_char_aspect=0.5)
+    )
+    frame = np.zeros((1920, 1080, 3), dtype=np.uint8)
+
+    resized = processor._resize_preserving_terminal_aspect(frame)
+
+    assert captured_size == (22, 20)
+    assert resized.shape == (20, 22, 3)
+
+
 def test_ascii_mapping_uses_dark_to_light_extremes() -> None:
     processor = FrameProcessor(FrameProcessorConfig(width=2, ascii_chars=" .#"))
     luminance = np.array([[0, 255]], dtype=np.float32)

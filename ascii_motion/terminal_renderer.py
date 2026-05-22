@@ -32,6 +32,7 @@ class TerminalRenderer:
     ALT_SCREEN_ON = "\033[?1049h"
     ALT_SCREEN_OFF = "\033[?1049l"
     CLEAR_SCREEN = "\033[2J"
+    CLEAR_LINE = "\033[K"
     CURSOR_HOME = "\033[H"
     HIDE_CURSOR = "\033[?25l"
     SHOW_CURSOR = "\033[?25h"
@@ -72,12 +73,14 @@ class TerminalRenderer:
         show_progress: bool = False,
         show_controls: bool = False,
     ) -> None:
-        output = self.compose_frame(
-            ascii_frame,
-            status=status,
-            show_hud=show_hud,
-            show_progress=show_progress,
-            show_controls=show_controls,
+        output = self._clear_line_suffixes(
+            self.compose_frame(
+                ascii_frame,
+                status=status,
+                show_hud=show_hud,
+                show_progress=show_progress,
+                show_controls=show_controls,
+            )
         )
         frame_height = output.count("\n") + 1 if output else 0
         padding = ""
@@ -88,6 +91,10 @@ class TerminalRenderer:
         self._stdout.write(self.CURSOR_HOME + output + padding)
         self._stdout.flush()
         self._last_height = frame_height
+
+    @classmethod
+    def _clear_line_suffixes(cls, output: str) -> str:
+        return "\n".join(f"{line}{cls.CLEAR_LINE}" for line in output.split("\n"))
 
     @classmethod
     def compose_frame(

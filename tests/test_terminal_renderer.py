@@ -31,6 +31,15 @@ def test_render_repositions_cursor_without_clearing_screen_each_frame() -> None:
     assert TerminalRenderer.CLEAR_SCREEN not in text
 
 
+def test_render_clears_line_suffixes_to_remove_stale_text() -> None:
+    output = StringIO()
+    renderer = TerminalRenderer(use_alt_screen=False, stdout=output)
+
+    renderer.render("short")
+
+    assert f"short{TerminalRenderer.CLEAR_LINE}" in output.getvalue()
+
+
 def test_renderer_composes_hud_progress_and_controls() -> None:
     status = PlaybackStatus(
         current_seconds=10.0,

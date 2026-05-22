@@ -253,14 +253,18 @@ def build_processor_config(
     size = TerminalRenderer.terminal_size()
     width = args.width or size.columns
     height = args.height
+    max_height = None
 
     if args.fit_terminal:
         width = args.width or size.columns
         height = args.height or max(1, size.rows - reserved_rows)
+    elif args.width is None and args.height is None:
+        max_height = max(1, size.rows - reserved_rows)
 
     return FrameProcessorConfig(
         width=width,
         height=height,
+        max_height=max_height,
         ascii_chars=resolve_ascii_chars(args.charset, args.chars),
         invert=args.invert,
         color_mode=args.color,
@@ -322,6 +326,7 @@ def playback_status(
     stats: BenchmarkStats,
     target_fps: float,
     paused: bool,
+    output_width: int,
     output_height: int,
 ) -> PlaybackStatus:
     return PlaybackStatus(
@@ -329,7 +334,7 @@ def playback_status(
         total_seconds=stream.metadata.duration_seconds,
         effective_fps=stats.effective_fps,
         target_fps=target_fps,
-        width=processor.config.width,
+        width=output_width,
         height=processor.config.height or output_height,
         paused=paused,
         color_mode=args.color,
@@ -540,6 +545,7 @@ def run(args: argparse.Namespace) -> int:
                         stats,
                         target_fps,
                         paused,
+                        max((len(line) for line in ascii_frame.splitlines()), default=0),
                         ascii_frame.count("\n") + 1,
                     ),
                     show_hud=show_hud(args),

@@ -18,6 +18,7 @@ ANSI_RESET = "\033[0m"
 class FrameProcessorConfig:
     width: int
     height: int | None = None
+    max_height: int | None = None
     ascii_chars: str = DEFAULT_ASCII_CHARS
     invert: bool = False
     color_mode: ColorMode = "none"
@@ -35,6 +36,9 @@ class FrameProcessor:
 
         if config.height is not None and config.height <= 0:
             raise ValueError("La altura objetivo debe ser mayor que cero.")
+
+        if config.max_height is not None and config.max_height <= 0:
+            raise ValueError("La altura maxima debe ser mayor que cero.")
 
         if config.terminal_char_aspect <= 0:
             raise ValueError("El aspect ratio de caracter debe ser mayor que cero.")
@@ -82,6 +86,10 @@ class FrameProcessor:
                 * self.config.terminal_char_aspect
             )
             target_height = max(1, target_height)
+            if self.config.max_height is not None and target_height > self.config.max_height:
+                scale = self.config.max_height / target_height
+                target_width = max(1, int(target_width * scale))
+                target_height = self.config.max_height
         else:
             target_height = self.config.height
 
