@@ -38,7 +38,7 @@
           <a href="#capabilities">Capabilities</a>
           <a href="#controls">Controls</a>
           <a href="#export">Export</a>
-          <a href="#performance">Performance</a>
+          <a href="#architecture">Architecture</a>
           <a href="#install">Install</a>
           <a class="nav-cta" href="#install">Get started</a>
         </div>
@@ -56,16 +56,16 @@
               color output, visual modes, and performance-aware rendering.
             </p>
             <div class="hero-actions" aria-label="Primary actions">
-              <a class="button button-primary" href="#install">Install with Homebrew</a>
+              <a class="button button-primary" href="#install">Install from PyPI</a>
               <a class="button button-ghost" href="#export">Explore exports</a>
             </div>
             <div class="command-pill" aria-label="Quick start command">
               <span class="prompt">$</span>
-              <code>ascii-motion video.mp4 --width 120 --color 256</code>
+              <code>ascii-motion video.mp4 --width 120</code>
             </div>
             <dl class="hero-stats" aria-label="Project highlights">
               <div>
-                <dt>50</dt>
+                <dt>54</dt>
                 <dd>automated tests</dd>
               </div>
               <div>
@@ -155,10 +155,10 @@
           </article>
           <article class="feature-card reveal">
             <span class="feature-kicker">Packaging</span>
-            <h3>Homebrew-ready CLI</h3>
+            <h3>PyPI and Homebrew-ready CLI</h3>
             <p>
-              Install from a tap, run as `ascii-motion`, or use `python -m ascii_motion` during
-              development.
+              Install with pipx, PyPI, or Homebrew, run as `ascii-motion`, or use
+              `python -m ascii_motion` during development.
             </p>
           </article>
         </div>
@@ -215,10 +215,14 @@
         </div>
       </section>
 
-      <section class="pipeline-section section-band" id="performance" aria-labelledby="pipeline-title">
+      <section class="pipeline-section section-band" id="architecture" aria-labelledby="pipeline-title">
         <div class="section-heading reveal">
-          <p class="eyebrow">Pipeline</p>
-          <h2 id="pipeline-title">A tight loop with explicit performance boundaries.</h2>
+          <p class="eyebrow">Architecture</p>
+          <h2 id="pipeline-title">A terminal media pipeline with explicit performance boundaries.</h2>
+          <p>
+            Capture, processing, pacing, keyboard control, and ANSI output are separated so the
+            project can grow without turning the playback loop into a monolith.
+          </p>
         </div>
         <div class="pipeline reveal" aria-label="Processing pipeline">
           <span>VideoCapture</span>
@@ -245,6 +249,32 @@
             <span>optional frame skipping keeps playback aligned with wall-clock time</span>
           </article>
         </div>
+        <div class="engineering-grid">
+          <article class="engineering-note reveal">
+            <span>01</span>
+            <h3>Vectorized processing</h3>
+            <p>
+              NumPy maps luminance, edges, dithering, and ASCII lookup across full matrices. Python
+              only joins completed rows for terminal output.
+            </p>
+          </article>
+          <article class="engineering-note reveal">
+            <span>02</span>
+            <h3>No-flicker terminal rendering</h3>
+            <p>
+              Frames use cursor-home ANSI sequences and clear-line suffixes instead of full-screen
+              clears, keeping playback stable and avoiding scrollback spam.
+            </p>
+          </article>
+          <article class="engineering-note reveal">
+            <span>03</span>
+            <h3>Wall-clock pacing</h3>
+            <p>
+              The clock targets accumulated frame deadlines and skips late frames by default when
+              terminal throughput cannot keep up.
+            </p>
+          </article>
+        </div>
       </section>
 
       <section class="install-section section-band" id="install" aria-labelledby="install-title">
@@ -253,12 +283,13 @@
             <p class="eyebrow">Install</p>
             <h2 id="install-title">Launch from a real terminal.</h2>
             <p>
-              Install with Homebrew for normal use, or install the Python package in editable mode
-              when developing the CLI.
+              Install from PyPI or Homebrew for normal use, or install the Python package in
+              editable mode when developing the CLI.
             </p>
           </div>
           <div class="install-commands" aria-label="Installation commands">
-            <pre><code>brew install c4rl0s04/ascii-motion/ascii-motion
+            <pre><code>pipx install ascii-motion
+brew install c4rl0s04/ascii-motion/ascii-motion
 
 ascii-motion video.mp4 --width 120
 ascii-motion video.mp4 --mode hybrid --dither ordered
@@ -280,7 +311,7 @@ ascii-motion video.mp4 --export-ansi demo.ans --color 256</code></pre>
         <a href="#capabilities">Capabilities</a>
         <a href="#controls">Controls</a>
         <a href="#export">Export</a>
-        <a href="#performance">Performance</a>
+        <a href="#architecture">Architecture</a>
         <a href="#install">Install</a>
       </div>
     </footer>

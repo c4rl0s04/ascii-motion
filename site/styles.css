@@ -221,6 +221,7 @@ select {
 .terminal-window,
 .feature-card,
 .command-card,
+.engineering-note,
 .metric,
 .install-card,
 .install-commands {
@@ -278,6 +279,7 @@ p {
   max-width: 640px;
   color: #d3ddd6;
   font-size: 1.18rem;
+  overflow-wrap: anywhere;
 }
 
 .hero-stats {
@@ -319,6 +321,7 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   min-height: 46px;
   border-radius: 7px;
   padding: 0 18px;
@@ -364,10 +367,14 @@ p {
 
 .command-pill code,
 .code-line code {
+  min-width: 0;
   overflow-wrap: anywhere;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .prompt {
+  flex: 0 0 auto;
   color: var(--amber);
 }
 
@@ -530,6 +537,7 @@ p {
 
 .feature-card,
 .metric,
+.engineering-note,
 .command-card,
 .install-card {
   border: 1px solid var(--line);
@@ -673,6 +681,30 @@ kbd {
   margin-top: 18px;
 }
 
+.engineering-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.engineering-note {
+  padding: 22px;
+}
+
+.engineering-note span {
+  display: inline-block;
+  margin-bottom: 22px;
+  color: var(--amber);
+  font-family: var(--mono);
+  font-weight: 800;
+}
+
+.engineering-note p {
+  margin-bottom: 0;
+  font-size: 0.94rem;
+}
+
 .metric {
   padding: 22px;
 }
@@ -782,6 +814,7 @@ kbd {
 
   .capability-grid,
   .metrics-grid,
+  .engineering-grid,
   .command-grid {
     grid-template-columns: 1fr;
   }
@@ -801,10 +834,14 @@ kbd {
   .nav-shell,
   .section-band,
   .site-footer {
-    width: min(100vw - 28px, 1180px);
+    width: min(calc(100vw - 28px), 1180px);
   }
 
   .nav-toggle {
+    position: fixed;
+    top: 15px;
+    right: 14px;
+    z-index: 70;
     display: block;
   }
 
@@ -870,8 +907,12 @@ kbd {
     font-size: 0.8rem;
   }
 
+  .hero-lede {
+    font-size: 1.05rem;
+  }
+
   .hero-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 

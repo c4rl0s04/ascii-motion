@@ -31,6 +31,18 @@ Mobile view:
 
 ## Installation
 
+Install from PyPI:
+
+```bash
+pip install ascii-motion
+```
+
+For isolated CLI usage, `pipx` is recommended:
+
+```bash
+pipx install ascii-motion
+```
+
 Install with Homebrew on macOS:
 
 ```bash
@@ -263,6 +275,13 @@ Workflow: release.yml
 Environment: pypi
 ```
 
+After the release workflow succeeds, verify the published package from a clean environment:
+
+```bash
+pipx install ascii-motion
+ascii-motion --version
+```
+
 ## Technical Pipeline
 
 ```text
@@ -276,6 +295,18 @@ Y = 0.2126R + 0.7152G + 0.0722B
 ```
 
 OpenCV provides frames in BGR order, so the processor reads `R` from channel `2`, `G` from channel `1`, and `B` from channel `0`.
+
+## Engineering Notes
+
+`ascii-motion` is structured as a terminal media pipeline rather than a frame-by-frame print script. OpenCV owns source capture and seeking, `FrameProcessor` owns vectorized image transforms, and `TerminalRenderer` owns ANSI terminal state. This keeps future processor backends isolated from playback and output concerns.
+
+The core luminance and character mapping path is vectorized with NumPy over full frame matrices. Python does not iterate pixel by pixel; it only assembles the final character rows after the lookup table has produced the ASCII matrix.
+
+Rendering avoids full-screen clears during playback. Each frame is emitted with a cursor-home sequence and clear-to-end-of-line suffixes, which prevents scrollback spam and stale HUD text while reducing flicker in modern ANSI terminals.
+
+Frame pacing is based on accumulated wall-clock targets instead of sleeping a fixed amount after each frame. When rendering falls behind, default playback skips late source frames to keep the ASCII output close to the original video duration. `--no-frame-skip` switches to completeness over timing.
+
+Export modes reuse the same processing path as playback. Snapshot, plain text animation, ANSI animation, and numbered frame exports are non-interactive stdout/file workflows, so they do not enter alternate screen or keyboard-control mode.
 
 ## Performance Notes
 
@@ -292,6 +323,20 @@ To measure the pipeline:
 ```bash
 ascii-motion video.mp4 --width 120 --benchmark
 ```
+
+## Terminal Compatibility
+
+Compatibility depends on ANSI support, terminal throughput, font metrics, and keyboard escape handling. Current status:
+
+| Terminal | ANSI render | Truecolor | Alternate screen | Keyboard controls | Notes |
+| --- | --- | --- | --- | --- | --- |
+| Ghostty | tested | tested | tested | tested | Best current validation target for high-FPS playback. |
+| iTerm2 | expected | expected | expected | expected | Modern ANSI support; still needs a full local pass. |
+| Terminal.app | expected | expected | expected | expected | Works for standard ANSI paths; high widths may be slower. |
+| Alacritty | expected | expected | expected | expected | Good fit for fast rendering; needs validation. |
+| WezTerm | expected | expected | expected | expected | Good fit for truecolor and alternate screen; needs validation. |
+| VS Code terminal | expected | expected | expected | expected | Useful for development, but terminal throughput may vary. |
+| tmux | needs validation | needs validation | needs validation | needs validation | Depends on tmux terminal-overrides and truecolor config. |
 
 ## Recommended Manual Validation
 
