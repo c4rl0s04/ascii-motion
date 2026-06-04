@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ascii-motion"
-version = "0.1.1"
 description = "Reproduce videos como animaciones ASCII en terminales ANSI."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,6 +28,7 @@ dependencies = [
     "numpy>=1.26.0",
     "opencv-python>=4.9.0",
 ]
+dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/c4rl0s04/ascii-motion"
@@ -50,6 +50,9 @@ ascii-motion = "ascii_motion.main:main"
 
 [tool.setuptools.packages.find]
 include = ["ascii_motion*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "ascii_motion.__version__" }
 
 [tool.ruff]
 line-length = 100

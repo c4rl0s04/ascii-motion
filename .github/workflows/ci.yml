@@ -48,7 +48,9 @@ jobs:
         run: python -m compileall ascii_motion tests
 
       - name: Smoke test CLI
-        run: ascii-motion --help
+        run: |
+          ascii-motion --help
+          ascii-motion --version
 
   package:
     name: Package build

@@ -232,6 +232,37 @@ Use `--export-frames` when you want many files, one per processed frame in the s
 - `--version`: print the installed package version.
 - `-h, --help`: print CLI help.
 
+## Release Process
+
+Package version is defined once in [`ascii_motion/__init__.py`](ascii_motion/__init__.py). `pyproject.toml` reads that value during builds, so releases do not require editing the version in two places.
+
+Before tagging a release:
+
+```bash
+python3 -m pytest
+python3 -m ruff check .
+python3 -m compileall ascii_motion tests scripts
+rm -rf dist build ascii_motion.egg-info
+python3 -m build
+python3 -m twine check dist/*
+```
+
+To publish a release, update `__version__`, commit it, then create and push a semantic version tag:
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The `Publish package` GitHub Actions workflow builds the package and publishes it to PyPI through trusted publishing. The repository must be configured in PyPI with a trusted publisher for this workflow:
+
+```text
+Owner: c4rl0s04
+Repository: ascii-motion
+Workflow: release.yml
+Environment: pypi
+```
+
 ## Technical Pipeline
 
 ```text
