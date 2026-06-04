@@ -15,14 +15,6 @@ The static promotional site lives in [`site/`](site/) and is published with GitH
 
 https://c4rl0s04.github.io/ascii-motion/
 
-To view it locally:
-
-```bash
-python3 -m http.server 8765 --directory site
-```
-
-Then open `http://127.0.0.1:8765/` in your browser.
-
 ![ascii-motion landing desktop](docs/screenshots/landing-desktop.png)
 
 Mobile view:

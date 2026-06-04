@@ -1,9 +1,7 @@
 const stage = document.querySelector("[data-ascii-stage]");
-const fpsBadge = document.querySelector("[data-fps-badge]");
+const fpsBadge = document.querySelector(".fps-badge");
 const terminalHud = document.querySelector("[data-terminal-hud]");
 const header = document.querySelector("[data-header]");
-const navToggle = document.querySelector("[data-nav-toggle]");
-const navMenu = document.querySelector("[data-nav-menu]");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const chars = " .:-=+*#%@";
@@ -37,7 +35,7 @@ function updateTerminalHud(time) {
 
   terminalHud.innerHTML = `
     <span>${formatTime(currentSeconds)} / 00:20 | 59.8/60.0 FPS | 120x34 | ${mode} | ${color} | skipped=${skipped} | ${state}</span>
-    <span>[${bar}] ${(progress * 100).toFixed(1)}%</span>
+    <span class="progress-bar">[<span class="progress-fill">${"#".repeat(filled)}</span>${"-".repeat(28 - filled)}] ${(progress * 100).toFixed(1)}%</span>
     <span>q quit | space pause | left/right seek | h/l fallback | ? help</span>
   `;
 }
@@ -107,46 +105,15 @@ function setScrolledState() {
   if (!header) {
     return;
   }
-  header.classList.toggle("is-scrolled", window.scrollY > 8);
-}
-
-function closeMenu() {
-  if (!navToggle || !navMenu) {
-    return;
-  }
-  navToggle.setAttribute("aria-expanded", "false");
-  navMenu.classList.remove("is-open");
-  document.body.classList.remove("nav-open");
-}
-
-function setupNavigation() {
-  if (!navToggle || !navMenu) {
-    return;
-  }
-
-  navToggle.addEventListener("click", () => {
-    const isOpen = navToggle.getAttribute("aria-expanded") === "true";
-    navToggle.setAttribute("aria-expanded", String(!isOpen));
-    navMenu.classList.toggle("is-open", !isOpen);
-    document.body.classList.toggle("nav-open", !isOpen);
-  });
-
-  navMenu.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", closeMenu);
-  });
-
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeMenu();
-    }
-  });
+  header.style.backgroundColor = window.scrollY > 8 ? "rgba(15, 23, 42, 0.9)" : "transparent";
+  header.style.backdropFilter = window.scrollY > 8 ? "blur(12px)" : "none";
 }
 
 function setupReveal() {
   const items = document.querySelectorAll(".reveal");
 
   if (reduceMotion || !("IntersectionObserver" in window)) {
-    items.forEach((item) => item.classList.add("is-visible"));
+    items.forEach((item) => item.classList.add("visible"));
     return;
   }
 
@@ -154,15 +121,35 @@ function setupReveal() {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
+          entry.target.classList.add("visible");
           observer.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.16 },
+    { threshold: 0.15 },
   );
 
   items.forEach((item) => observer.observe(item));
+}
+
+function setupCopyButtons() {
+  const buttons = document.querySelectorAll(".copy-btn");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const codeElement = btn.parentElement.querySelector("code");
+      if (codeElement) {
+        navigator.clipboard.writeText(codeElement.textContent).then(() => {
+          const originalText = btn.textContent;
+          btn.textContent = "Copied!";
+          btn.style.backgroundColor = "#2563EB";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = "#1E293B";
+          }, 2000);
+        });
+      }
+    });
+  });
 }
 
 window.addEventListener("scroll", setScrolledState, { passive: true });
@@ -173,6 +160,6 @@ window.addEventListener("resize", () => {
 });
 
 setScrolledState();
-setupNavigation();
 setupReveal();
+setupCopyButtons();
 requestAnimationFrame(renderAscii);

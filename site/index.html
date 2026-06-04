@@ -9,6 +9,7 @@
     />
     <title>ascii-motion | Professional video-to-ASCII CLI</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -21,298 +22,171 @@
           <span>ascii-motion</span>
         </a>
 
-        <button
-          class="nav-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="nav-menu"
-          data-nav-toggle
-        >
-          <span class="nav-toggle-line"></span>
-          <span class="nav-toggle-line"></span>
-          <span class="nav-toggle-line"></span>
-          <span class="sr-only">Toggle navigation</span>
-        </button>
-
         <div class="nav-menu" id="nav-menu" data-nav-menu>
-          <a href="#capabilities">Capabilities</a>
-          <a href="#controls">Controls</a>
-          <a href="#export">Export</a>
-          <a href="#architecture">Architecture</a>
+          <a href="#how-it-works">Pipeline</a>
+          <a href="#options">Options</a>
           <a href="#install">Install</a>
-          <a class="nav-cta" href="#install">Get started</a>
+          <a class="nav-cta" href="https://github.com/c4rl0s04/ascii-motion" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </nav>
     </header>
 
     <main id="main">
       <section class="hero section-band" id="top">
-        <div class="hero-grid">
-          <div class="hero-copy reveal">
-            <p class="eyebrow">OpenCV + NumPy + ANSI</p>
-            <h1>ascii-motion</h1>
-            <p class="hero-lede">
-              A professional terminal CLI for real-time video-to-ASCII playback, frame export,
-              color output, visual modes, and performance-aware rendering.
-            </p>
-            <div class="hero-actions" aria-label="Primary actions">
-              <a class="button button-primary" href="#install">Install from PyPI</a>
-              <a class="button button-ghost" href="#export">Explore exports</a>
-            </div>
-            <div class="command-pill" aria-label="Quick start command">
-              <span class="prompt">$</span>
-              <code>ascii-motion video.mp4 --width 120</code>
-            </div>
-            <dl class="hero-stats" aria-label="Project highlights">
-              <div>
-                <dt>54</dt>
-                <dd>automated tests</dd>
-              </div>
-              <div>
-                <dt>3</dt>
-                <dd>export modes</dd>
-              </div>
-              <div>
-                <dt>4</dt>
-                <dd>color modes</dd>
-              </div>
-            </dl>
-          </div>
-
-          <aside class="terminal-showcase reveal" aria-label="Animated ASCII terminal preview">
-            <div class="terminal-window">
-              <div class="terminal-titlebar">
-                <div class="window-controls" aria-hidden="true">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <span class="terminal-title">ghostty · zsh · ascii-motion</span>
-                <span class="fps-badge" data-fps-badge>60 FPS</span>
-              </div>
-              <pre class="terminal-command" aria-hidden="true"><code>$ ascii-motion launch.mp4 --fit-terminal --show-controls</code></pre>
-              <pre class="ascii-stage" aria-hidden="true" data-ascii-stage></pre>
-              <div class="terminal-hud" aria-hidden="true" data-terminal-hud>
-                <span>00:08 / 00:20 | 59.8/60.0 FPS | 120x34 | hybrid | 256 | playing</span>
-                <span>[###########-----------------] 41.2%</span>
-                <span>q quit | space pause | left/right seek | h/l fallback | ? help</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section class="capability-section section-band" id="capabilities" aria-labelledby="capabilities-title">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Product surface</p>
-          <h2 id="capabilities-title">Built like a terminal media tool, not a one-off script.</h2>
-          <p>
-            The CLI now covers playback, controls, visual processing, export, and package-grade
-            validation while keeping the runtime dependency set focused.
+        <div class="hero-content reveal">
+          <div class="badge">OLED Dark Mode Enabled</div>
+          <h1>Video playback.<br><span class="accent-text">Directly in your terminal.</span></h1>
+          <p class="hero-lede">
+            A professional CLI for real-time video-to-ASCII playback, utilizing OpenCV and NumPy for vectorized performance and ANSI for flicker-resistant rendering.
           </p>
-        </div>
-
-        <div class="capability-grid">
-          <article class="feature-card reveal">
-            <span class="feature-kicker">Playback</span>
-            <h3>HUD, progress, pause and seek</h3>
-            <p>
-              Compact playback state is visible by default, with configurable controls for quit,
-              pause/resume, seeking, and help.
-            </p>
-          </article>
-          <article class="feature-card reveal">
-            <span class="feature-kicker">Export</span>
-            <h3>Frames, text and ANSI files</h3>
-            <p>
-              Save one frame, a form-feed separated text animation, ANSI playback output, or a
-              directory of numbered frame files.
-            </p>
-          </article>
-          <article class="feature-card reveal">
-            <span class="feature-kicker">Visuals</span>
-            <h3>ASCII, edges, hybrid and dithering</h3>
-            <p>
-              Luminance mapping is joined by Sobel edge emphasis, hybrid rendering, and ordered
-              Bayer dithering.
-            </p>
-          </article>
-          <article class="feature-card reveal">
-            <span class="feature-kicker">Color</span>
-            <h3>Plain, truecolor, 256 and grayscale</h3>
-            <p>
-              Choose plain text for speed or ANSI color output for richer terminal captures and
-              exports.
-            </p>
-          </article>
-          <article class="feature-card reveal">
-            <span class="feature-kicker">Timing</span>
-            <h3>FPS pacing and real-time mode</h3>
-            <p>
-              Respect source FPS by default, override playback FPS when needed, or skip frames to
-              preserve wall-clock timing.
-            </p>
-          </article>
-          <article class="feature-card reveal">
-            <span class="feature-kicker">Packaging</span>
-            <h3>PyPI and Homebrew-ready CLI</h3>
-            <p>
-              Install with pipx, PyPI, or Homebrew, run as `ascii-motion`, or use
-              `python -m ascii_motion` during development.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="controls-section section-band" id="controls" aria-labelledby="controls-title">
-        <div class="split-layout">
-          <div class="section-heading reveal">
-            <p class="eyebrow">Interactive playback</p>
-            <h2 id="controls-title">Playback controls belong in the terminal.</h2>
-            <p>
-              The app stays stdout-native, but it behaves like a focused media player: pause,
-              resume, seek, inspect progress, and keep rendering smooth without a GUI layer.
-            </p>
+          
+          <div class="hero-actions">
+            <a class="button button-primary" href="#install">Get Started</a>
+            <a class="button button-ghost" href="#options">View Options</a>
           </div>
-          <div class="control-grid reveal" aria-label="Default keyboard controls">
-            <div><kbd>q</kbd><span>quit</span></div>
-            <div><kbd>space</kbd><span>pause / resume</span></div>
-            <div><kbd>←</kbd><span>seek backward</span></div>
-            <div><kbd>→</kbd><span>seek forward</span></div>
-            <div><kbd>h</kbd><span>backward fallback</span></div>
-            <div><kbd>l</kbd><span>forward fallback</span></div>
-            <div><kbd>?</kbd><span>toggle help</span></div>
+        </div>
+
+        <div class="hero-terminal reveal" aria-label="Animated ASCII terminal preview">
+          <div class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="window-controls" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="terminal-title">ghostty · ascii-motion video.mp4 --width 120</span>
+              <span class="fps-badge">60 FPS</span>
+            </div>
+            <pre class="ascii-stage" aria-hidden="true" data-ascii-stage></pre>
+            <div class="terminal-hud" aria-hidden="true" data-terminal-hud>
+              <span>00:08 / 00:20 | 59.8/60.0 FPS | 120x34 | hybrid | 256 | playing</span>
+              <span class="progress-bar">[<span class="progress-fill">###########</span>-----------------] 41.2%</span>
+              <span>q quit | space pause | left/right seek | h/l fallback | ? help</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="export-section section-band" id="export" aria-labelledby="export-title">
+      <section class="how-it-works-section section-band" id="how-it-works">
         <div class="section-heading reveal">
-          <p class="eyebrow">Non-interactive workflows</p>
-          <h2 id="export-title">Export for docs, demos, snapshots and terminal playback.</h2>
+          <p class="eyebrow">The Pipeline</p>
+          <h2>How it Works under the hood</h2>
+          <p>Unlike simple one-off scripts, ascii-motion is built like a true terminal media pipeline. Processing is highly vectorized, and rendering avoids full-screen clears.</p>
         </div>
-        <div class="command-grid">
-          <article class="command-card reveal">
-            <h3>Preview metadata</h3>
-            <pre><code>ascii-motion video.mp4 --preview</code></pre>
-            <p>Inspect source FPS, frame count, duration, selected dimensions and visual settings.</p>
-          </article>
-          <article class="command-card reveal">
-            <h3>Save one frame</h3>
-            <pre><code>ascii-motion video.mp4 --frame-at 12.5 --width 120 &gt; frame.txt</code></pre>
-            <p>Render exactly one timestamp to stdout and redirect it wherever you need.</p>
-          </article>
-          <article class="command-card reveal">
-            <h3>Export an animation</h3>
-            <pre><code>ascii-motion video.mp4 --export output.txt --duration 5</code></pre>
-            <p>Write a plain text animation using form-feed separators between frames.</p>
-          </article>
-          <article class="command-card reveal">
-            <h3>Export ANSI color</h3>
-            <pre><code>ascii-motion video.mp4 --export-ansi output.ans --color 256</code></pre>
-            <p>Create terminal-replayable output with ANSI cursor-home and color sequences.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="pipeline-section section-band" id="architecture" aria-labelledby="pipeline-title">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Architecture</p>
-          <h2 id="pipeline-title">A terminal media pipeline with explicit performance boundaries.</h2>
-          <p>
-            Capture, processing, pacing, keyboard control, and ANSI output are separated so the
-            project can grow without turning the playback loop into a monolith.
-          </p>
-        </div>
-        <div class="pipeline reveal" aria-label="Processing pipeline">
-          <span>VideoCapture</span>
-          <span>Resize</span>
-          <span>Luminance / Edges</span>
-          <span>Dither + LUT</span>
-          <span>ANSI Render / Export</span>
-        </div>
-        <div class="metrics-grid">
-          <article class="metric reveal">
-            <strong>Rec. 709</strong>
-            <span>0.2126R + 0.7152G + 0.0722B over BGR OpenCV frames</span>
-          </article>
-          <article class="metric reveal">
-            <strong>No pixel loops</strong>
-            <span>NumPy handles full matrices; Python only assembles text by row</span>
-          </article>
-          <article class="metric reveal">
-            <strong>No frame clears</strong>
-            <span>rendering uses ANSI cursor-home instead of clearing the screen per frame</span>
-          </article>
-          <article class="metric reveal">
-            <strong>Real-time mode</strong>
-            <span>optional frame skipping keeps playback aligned with wall-clock time</span>
-          </article>
-        </div>
-        <div class="engineering-grid">
-          <article class="engineering-note reveal">
-            <span>01</span>
-            <h3>Vectorized processing</h3>
-            <p>
-              NumPy maps luminance, edges, dithering, and ASCII lookup across full matrices. Python
-              only joins completed rows for terminal output.
-            </p>
-          </article>
-          <article class="engineering-note reveal">
-            <span>02</span>
-            <h3>No-flicker terminal rendering</h3>
-            <p>
-              Frames use cursor-home ANSI sequences and clear-line suffixes instead of full-screen
-              clears, keeping playback stable and avoiding scrollback spam.
-            </p>
-          </article>
-          <article class="engineering-note reveal">
-            <span>03</span>
-            <h3>Wall-clock pacing</h3>
-            <p>
-              The clock targets accumulated frame deadlines and skips late frames by default when
-              terminal throughput cannot keep up.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="install-section section-band" id="install" aria-labelledby="install-title">
-        <div class="install-card reveal">
-          <div>
-            <p class="eyebrow">Install</p>
-            <h2 id="install-title">Launch from a real terminal.</h2>
-            <p>
-              Install from PyPI or Homebrew for normal use, or install the Python package in
-              editable mode when developing the CLI.
-            </p>
+        
+        <div class="pipeline-grid reveal">
+          <div class="pipeline-step">
+            <div class="step-icon">01</div>
+            <h3>VideoCapture</h3>
+            <p>OpenCV captures frames in BGR format and handles high-performance seeking.</p>
           </div>
-          <div class="install-commands" aria-label="Installation commands">
-            <pre><code>pipx install ascii-motion
-brew install c4rl0s04/ascii-motion/ascii-motion
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="step-icon">02</div>
+            <h3>Vector Processing</h3>
+            <p>NumPy resizes and applies luminance/edge filters across full matrices, without slow pixel loops.</p>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="step-icon">03</div>
+            <h3>ASCII Mapping</h3>
+            <p>Dithering and LUT (Look-Up Table) operations convert the visual data to character grids instantly.</p>
+          </div>
+          <div class="pipeline-arrow">→</div>
+          <div class="pipeline-step">
+            <div class="step-icon">04</div>
+            <h3>ANSI Render</h3>
+            <p>Outputs using cursor-home sequences instead of clearing the screen, eliminating flicker.</p>
+          </div>
+        </div>
+      </section>
 
-ascii-motion video.mp4 --width 120
-ascii-motion video.mp4 --mode hybrid --dither ordered
-ascii-motion video.mp4 --export-ansi demo.ans --color 256</code></pre>
+      <section class="options-section section-band" id="options">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Options & Flags</p>
+          <h2>Customize your playback</h2>
+          <p>Control exactly how the video is processed, colored, and outputted.</p>
+        </div>
+
+        <div class="bento-grid">
+          <div class="bento-item highlight reveal">
+            <h3>Visual Modes</h3>
+            <p>Switch between standard ASCII, Sobel edge emphasis, or a hybrid blend.</p>
+            <div class="code-block">
+              <code>ascii-motion video.mp4 --mode edges</code>
+            </div>
+          </div>
+
+          <div class="bento-item reveal">
+            <h3>ANSI Color</h3>
+            <p>Output in truecolor, 256-color, grayscale, or plain text.</p>
+            <div class="code-block">
+              <code>--color truecolor</code>
+            </div>
+          </div>
+
+          <div class="bento-item reveal">
+            <h3>Dithering</h3>
+            <p>Apply ordered Bayer dithering before mapping.</p>
+            <div class="code-block">
+              <code>--dither ordered</code>
+            </div>
+          </div>
+
+          <div class="bento-item highlight reveal">
+            <h3>Interactive Controls</h3>
+            <p>Pause, play, and seek using native keyboard events, without a GUI.</p>
+            <ul class="control-list">
+              <li><kbd>Space</kbd> Pause/Resume</li>
+              <li><kbd>← / →</kbd> Seek</li>
+              <li><kbd>q</kbd> Quit</li>
+            </ul>
+          </div>
+          
+          <div class="bento-item wide reveal">
+            <h3>Export Workflows</h3>
+            <p>Don't just watch it—export frames, text, or full ANSI-encoded animations to replay later.</p>
+            <div class="code-block">
+              <code>ascii-motion video.mp4 --export-ansi output.ans --color 256</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="install-section section-band" id="install">
+        <div class="install-container reveal">
+          <div class="install-content">
+            <p class="eyebrow">Installation</p>
+            <h2>Ready to launch?</h2>
+            <p>Install via pipx for an isolated environment or use Homebrew on macOS.</p>
+          </div>
+          <div class="install-actions">
+            <div class="copy-box">
+              <span class="copy-label">PyPI</span>
+              <code>pipx install ascii-motion</code>
+              <button class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+            </div>
+            <div class="copy-box">
+              <span class="copy-label">Homebrew</span>
+              <code>brew install c4rl0s04/ascii-motion/ascii-motion</code>
+              <button class="copy-btn" aria-label="Copy to clipboard">Copy</button>
+            </div>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div>
-        <a class="brand footer-brand" href="#top" aria-label="ascii-motion home">
-          <span class="brand-mark" aria-hidden="true">▣</span>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="brand-mark">▣</span>
           <span>ascii-motion</span>
-        </a>
-        <p>Local-first video-to-ASCII playback and export. No GUI, no audio layer, just terminal-native output.</p>
+        </div>
+        <p>A high-performance terminal video player.</p>
       </div>
-      <div class="footer-links" aria-label="Footer navigation">
-        <a href="#capabilities">Capabilities</a>
-        <a href="#controls">Controls</a>
-        <a href="#export">Export</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#install">Install</a>
+      <div class="footer-links">
+        <a href="https://github.com/c4rl0s04/ascii-motion">GitHub</a>
+        <a href="https://pypi.org/project/ascii-motion/">PyPI</a>
       </div>
     </footer>
 
