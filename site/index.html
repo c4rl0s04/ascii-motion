@@ -9,184 +9,308 @@
     />
     <title>ascii-motion | Professional video-to-ASCII CLI</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header" data-header>
-      <nav class="nav-shell" aria-label="Primary navigation">
+      <div class="header-container">
         <a class="brand" href="#top" aria-label="ascii-motion home">
-          <span class="brand-mark" aria-hidden="true">▣</span>
-          <span>ascii-motion</span>
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="M6 8h.01M10 8h.01M14 8h.01M6 12h12M6 16h12" />
+          </svg>
+          ascii-motion
         </a>
-
-        <div class="nav-menu" id="nav-menu" data-nav-menu>
-          <a href="#how-it-works">Pipeline</a>
+        <nav class="nav-menu">
+          <a href="#pipeline">Architecture</a>
           <a href="#options">Options</a>
-          <a href="#install">Install</a>
-          <a class="nav-cta" href="https://github.com/c4rl0s04/ascii-motion" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
-      </nav>
+          <a href="#export">Export</a>
+          <a href="#compatibility">Compatibility</a>
+          <a class="nav-github" href="https://github.com/c4rl0s04/ascii-motion" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub
+          </a>
+        </nav>
+      </div>
     </header>
 
     <main id="main">
-      <section class="hero section-band" id="top">
+      <section class="hero" id="top">
         <div class="hero-content reveal">
-          <div class="badge">OLED Dark Mode Enabled</div>
-          <h1>Video playback.<br><span class="accent-text">Directly in your terminal.</span></h1>
-          <p class="hero-lede">
-            A professional CLI for real-time video-to-ASCII playback, utilizing OpenCV and NumPy for vectorized performance and ANSI for flicker-resistant rendering.
+          <h1 class="hero-title">Video playback.<br>Terminal native.</h1>
+          <p class="hero-description">
+            Plays video files as real-time ASCII animations directly inside an ANSI-compatible terminal. Uses OpenCV for frame capture, NumPy for matrix processing, and ANSI for flicker-resistant rendering.
           </p>
-          
-          <div class="hero-actions">
-            <a class="button button-primary" href="#install">Get Started</a>
-            <a class="button button-ghost" href="#options">View Options</a>
+          <div class="hero-install">
+            <div class="code-block copyable">
+              <span class="prompt">$</span><code>pipx install ascii-motion</code>
+              <button class="copy-btn">Copy</button>
+            </div>
+            <div class="code-block copyable">
+              <span class="prompt">$</span><code>brew install c4rl0s04/ascii-motion/ascii-motion</code>
+              <button class="copy-btn">Copy</button>
+            </div>
           </div>
         </div>
-
-        <div class="hero-terminal reveal" aria-label="Animated ASCII terminal preview">
-          <div class="terminal-window">
-            <div class="terminal-titlebar">
-              <div class="window-controls" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
+        <div class="hero-visual reveal">
+          <div class="macos-window">
+            <div class="window-header">
+              <div class="window-buttons">
+                <span></span><span></span><span></span>
               </div>
-              <span class="terminal-title">ghostty · ascii-motion video.mp4 --width 120</span>
-              <span class="fps-badge">60 FPS</span>
+              <div class="window-title">ghostty — ascii-motion demo</div>
             </div>
-            <pre class="ascii-stage" aria-hidden="true" data-ascii-stage></pre>
-            <div class="terminal-hud" aria-hidden="true" data-terminal-hud>
-              <span>00:08 / 00:20 | 59.8/60.0 FPS | 120x34 | hybrid | 256 | playing</span>
-              <span class="progress-bar">[<span class="progress-fill">###########</span>-----------------] 41.2%</span>
-              <span>q quit | space pause | left/right seek | h/l fallback | ? help</span>
+            <div class="window-body">
+              <img src="../docs/demo/ascii-motion-demo.gif" alt="ascii-motion running in a terminal" class="demo-gif" />
             </div>
           </div>
         </div>
       </section>
 
-      <section class="how-it-works-section section-band" id="how-it-works">
-        <div class="section-heading reveal">
-          <p class="eyebrow">The Pipeline</p>
-          <h2>How it Works under the hood</h2>
-          <p>Unlike simple one-off scripts, ascii-motion is built like a true terminal media pipeline. Processing is highly vectorized, and rendering avoids full-screen clears.</p>
+      <section class="docs-section section-pipeline reveal" id="pipeline">
+        <div class="section-header">
+          <div class="kicker">Architecture</div>
+          <h2>A terminal media pipeline</h2>
+          <p>Structured as a media pipeline rather than a frame-by-frame print script. This keeps processing backends isolated from playback and terminal output concerns.</p>
         </div>
         
-        <div class="pipeline-grid reveal">
-          <div class="pipeline-step">
-            <div class="step-icon">01</div>
-            <h3>VideoCapture</h3>
-            <p>OpenCV captures frames in BGR format and handles high-performance seeking.</p>
+        <div class="pipeline-visual">
+          <div class="node">
+            <h4>VideoCapture</h4>
+            <p>OpenCV BGR frames</p>
           </div>
-          <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step">
-            <div class="step-icon">02</div>
-            <h3>Vector Processing</h3>
-            <p>NumPy resizes and applies luminance/edge filters across full matrices, without slow pixel loops.</p>
+          <div class="edge">→</div>
+          <div class="node">
+            <h4>Resize</h4>
+            <p>Terminal fit</p>
           </div>
-          <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step">
-            <div class="step-icon">03</div>
-            <h3>ASCII Mapping</h3>
-            <p>Dithering and LUT (Look-Up Table) operations convert the visual data to character grids instantly.</p>
+          <div class="edge">→</div>
+          <div class="node">
+            <h4>Process</h4>
+            <p>Luminance / Edges</p>
           </div>
-          <div class="pipeline-arrow">→</div>
-          <div class="pipeline-step">
-            <div class="step-icon">04</div>
-            <h3>ANSI Render</h3>
-            <p>Outputs using cursor-home sequences instead of clearing the screen, eliminating flicker.</p>
+          <div class="edge">→</div>
+          <div class="node">
+            <h4>Map</h4>
+            <p>Dither + ASCII LUT</p>
+          </div>
+          <div class="edge">→</div>
+          <div class="node">
+            <h4>Render</h4>
+            <p>ANSI output</p>
+          </div>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>Vectorized Core</h3>
+            <p>NumPy maps luminance, edges, dithering, and ASCII lookup across full matrices. Python only joins completed rows for terminal output, eliminating slow pixel loops.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Flicker-Free Render</h3>
+            <p>Frames use cursor-home ANSI sequences (<code>\033[H</code>) instead of full-screen clears. This keeps playback stable and avoids scrollback spam.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Wall-Clock Pacing</h3>
+            <p>Pacing is based on accumulated wall-clock targets. If rendering falls behind, default playback skips late frames to keep the ASCII video aligned with real time.</p>
           </div>
         </div>
       </section>
 
-      <section class="options-section section-band" id="options">
-        <div class="section-heading reveal">
-          <p class="eyebrow">Options & Flags</p>
-          <h2>Customize your playback</h2>
-          <p>Control exactly how the video is processed, colored, and outputted.</p>
+      <section class="docs-section reveal" id="options">
+        <div class="section-header">
+          <div class="kicker">Comprehensive Tooling</div>
+          <h2>Playback Options</h2>
+          <p>Customize every aspect of the processing, sizing, timing, and visual output.</p>
         </div>
 
-        <div class="bento-grid">
-          <div class="bento-item highlight reveal">
-            <h3>Visual Modes</h3>
-            <p>Switch between standard ASCII, Sobel edge emphasis, or a hybrid blend.</p>
-            <div class="code-block">
-              <code>ascii-motion video.mp4 --mode edges</code>
-            </div>
+        <div class="docs-grid">
+          <!-- Sizing -->
+          <div class="docs-text">
+            <h3>Source and Sizing</h3>
+            <p>Use a video path or a camera index (<code>0</code>). By default, the output fits the current terminal size using a 0.5 character aspect correction, but you can explicitly override dimensions.</p>
+          </div>
+          <div class="docs-code">
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --width 120</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --fit-terminal</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion 0 --width 100</code><button class="copy-btn">Copy</button></div>
           </div>
 
-          <div class="bento-item reveal">
-            <h3>ANSI Color</h3>
-            <p>Output in truecolor, 256-color, grayscale, or plain text.</p>
-            <div class="code-block">
-              <code>--color truecolor</code>
-            </div>
+          <!-- Timing -->
+          <div class="docs-text">
+            <h3>Playback Timing</h3>
+            <p>Override FPS, specify a start timestamp, set a duration, or loop indefinitely. Real-time frame skipping is enabled by default to preserve pacing, but can be disabled.</p>
+          </div>
+          <div class="docs-code">
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --start 10 --duration 5</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --loop</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --no-frame-skip</code><button class="copy-btn">Copy</button></div>
           </div>
 
-          <div class="bento-item reveal">
-            <h3>Dithering</h3>
-            <p>Apply ordered Bayer dithering before mapping.</p>
-            <div class="code-block">
-              <code>--dither ordered</code>
-            </div>
+          <!-- Visual Modes -->
+          <div class="docs-text">
+            <h3>Visual Modes & Charsets</h3>
+            <p>Choose between standard luminance ASCII, Sobel edge emphasis, or a hybrid blend. You can also apply ordered Bayer dithering or provide custom character ramps.</p>
+          </div>
+          <div class="docs-code">
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --mode edges</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --mode hybrid --dither ordered</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --charset dense --invert</code><button class="copy-btn">Copy</button></div>
           </div>
 
-          <div class="bento-item highlight reveal">
-            <h3>Interactive Controls</h3>
-            <p>Pause, play, and seek using native keyboard events, without a GUI.</p>
-            <ul class="control-list">
-              <li><kbd>Space</kbd> Pause/Resume</li>
-              <li><kbd>← / →</kbd> Seek</li>
-              <li><kbd>q</kbd> Quit</li>
-            </ul>
+          <!-- Colors -->
+          <div class="docs-text">
+            <h3>ANSI Color Output</h3>
+            <p>While plain text is the fastest, you can enable terminal color output for richer visualizations, which applies to both live playback and ANSI exports.</p>
           </div>
-          
-          <div class="bento-item wide reveal">
-            <h3>Export Workflows</h3>
-            <p>Don't just watch it—export frames, text, or full ANSI-encoded animations to replay later.</p>
-            <div class="code-block">
-              <code>ascii-motion video.mp4 --export-ansi output.ans --color 256</code>
-            </div>
+          <div class="docs-code">
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --color truecolor</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --color 256</code><button class="copy-btn">Copy</button></div>
+            <div class="code-block copyable"><code>ascii-motion video.mp4 --color grayscale</code><button class="copy-btn">Copy</button></div>
           </div>
         </div>
       </section>
 
-      <section class="install-section section-band" id="install">
-        <div class="install-container reveal">
-          <div class="install-content">
-            <p class="eyebrow">Installation</p>
-            <h2>Ready to launch?</h2>
-            <p>Install via pipx for an isolated environment or use Homebrew on macOS.</p>
+      <section class="docs-section reveal" id="export">
+        <div class="section-header">
+          <div class="kicker">Workflows</div>
+          <h2>Snapshots & Exporting</h2>
+          <p>Non-interactive modes bypass alternate screens and keyboard controls, allowing for pipeline integration and direct file exports.</p>
+        </div>
+
+        <div class="export-grid">
+          <div class="export-card">
+            <h4>Metadata Preview</h4>
+            <p>Print source metadata and selected visual settings.</p>
+            <div class="code-block"><code>ascii-motion video.mp4 --preview</code></div>
           </div>
-          <div class="install-actions">
-            <div class="copy-box">
-              <span class="copy-label">PyPI</span>
-              <code>pipx install ascii-motion</code>
-              <button class="copy-btn" aria-label="Copy to clipboard">Copy</button>
-            </div>
-            <div class="copy-box">
-              <span class="copy-label">Homebrew</span>
-              <code>brew install c4rl0s04/ascii-motion/ascii-motion</code>
-              <button class="copy-btn" aria-label="Copy to clipboard">Copy</button>
-            </div>
+          <div class="export-card">
+            <h4>Save One Frame</h4>
+            <p>Render a single timestamp to stdout.</p>
+            <div class="code-block"><code>ascii-motion vid.mp4 --frame-at 5 > f.txt</code></div>
           </div>
+          <div class="export-card">
+            <h4>Export Plain Text</h4>
+            <p>Separates frames with form feeds (<code>\f</code>).</p>
+            <div class="code-block"><code>ascii-motion vid.mp4 --export out.txt</code></div>
+          </div>
+          <div class="export-card">
+            <h4>Export ANSI File</h4>
+            <p>Includes cursor-home and color sequences for terminal replay.</p>
+            <div class="code-block"><code>ascii-motion vid.mp4 --export-ansi out.ans</code></div>
+          </div>
+          <div class="export-card">
+            <h4>Export Frame Directory</h4>
+            <p>Write each frame as a numbered text file.</p>
+            <div class="code-block"><code>ascii-motion vid.mp4 --export-frames ./dir</code></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section reveal" id="controls">
+        <div class="section-header">
+          <div class="kicker">Interaction</div>
+          <h2>Keyboard Controls</h2>
+          <p>The app stays stdout-native, but it behaves like a focused media player during interactive playback.</p>
+        </div>
+        <div class="controls-table">
+          <div class="control-row header">
+            <div>Key</div>
+            <div>Action</div>
+            <div>CLI Override</div>
+          </div>
+          <div class="control-row">
+            <div><kbd>q</kbd></div>
+            <div>Quit playback</div>
+            <div><code>--quit-key</code></div>
+          </div>
+          <div class="control-row">
+            <div><kbd>Space</kbd></div>
+            <div>Pause / Resume</div>
+            <div><code>--pause-key</code></div>
+          </div>
+          <div class="control-row">
+            <div><kbd>←</kbd> / <kbd>→</kbd></div>
+            <div>Seek backward/forward (5s)</div>
+            <div><code>--seek-seconds</code></div>
+          </div>
+          <div class="control-row">
+            <div><kbd>h</kbd> / <kbd>l</kbd></div>
+            <div>Seek fallback (for limited terminals)</div>
+            <div><code>--backward-key</code> / <code>--forward-key</code></div>
+          </div>
+          <div class="control-row">
+            <div><kbd>?</kbd></div>
+            <div>Toggle HUD controls visibility</div>
+            <div><code>--help-key</code></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="docs-section reveal" id="compatibility">
+        <div class="section-header">
+          <div class="kicker">Validation</div>
+          <h2>Terminal Compatibility & Performance</h2>
+          <p>Compatibility depends on ANSI support, terminal throughput, and font metrics. Terminal output can be the main bottleneck at large widths, especially with color enabled.</p>
+        </div>
+        
+        <div class="compatibility-table">
+          <div class="comp-row header">
+            <div class="comp-cell">Terminal</div>
+            <div class="comp-cell">Status</div>
+            <div class="comp-cell">Notes</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell"><strong>Ghostty</strong></div>
+            <div class="comp-cell status-good">Tested</div>
+            <div class="comp-cell">Best validation target for high-FPS playback.</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell"><strong>iTerm2 / Alacritty / WezTerm</strong></div>
+            <div class="comp-cell status-expected">Expected</div>
+            <div class="comp-cell">Excellent modern ANSI and throughput support.</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell"><strong>Terminal.app</strong></div>
+            <div class="comp-cell status-expected">Expected</div>
+            <div class="comp-cell">Works for standard paths; high widths may slow down.</div>
+          </div>
+          <div class="comp-row">
+            <div class="comp-cell"><strong>tmux</strong></div>
+            <div class="comp-cell status-needs">Needs Validation</div>
+            <div class="comp-cell">Depends on tmux terminal-overrides and truecolor config.</div>
+          </div>
+        </div>
+        
+        <div class="performance-note">
+          <h4>Benchmarking</h4>
+          <p>To measure the pipeline on your machine without HUD overhead, run:<br>
+          <code>ascii-motion video.mp4 --width 120 --benchmark</code></p>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="footer-content">
+      <div class="footer-container">
         <div class="footer-brand">
-          <span class="brand-mark">▣</span>
-          <span>ascii-motion</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="M6 8h.01M10 8h.01M14 8h.01M6 12h12M6 16h12" />
+          </svg>
+          ascii-motion
         </div>
-        <p>A high-performance terminal video player.</p>
-      </div>
-      <div class="footer-links">
-        <a href="https://github.com/c4rl0s04/ascii-motion">GitHub</a>
-        <a href="https://pypi.org/project/ascii-motion/">PyPI</a>
+        <p class="footer-text">Local-first video-to-ASCII CLI. No GUI, no audio layer, just terminal-native output.</p>
+        <div class="footer-links">
+          <a href="https://github.com/c4rl0s04/ascii-motion">GitHub</a>
+          <a href="https://pypi.org/project/ascii-motion/">PyPI</a>
+        </div>
       </div>
     </footer>
 
