@@ -31,13 +31,13 @@ Mobile view:
 
 ## Installation
 
-PyPI publishing is prepared, but the first publish requires PyPI trusted publisher setup. After the `Publish package` workflow succeeds, install from PyPI:
+Install from PyPI:
 
 ```bash
 pip install ascii-motion
 ```
 
-For isolated CLI usage after PyPI publishing succeeds, `pipx` is recommended:
+For isolated CLI usage, `pipx` is recommended:
 
 ```bash
 pipx install ascii-motion
