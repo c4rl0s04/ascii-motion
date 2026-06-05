@@ -1,16 +1,23 @@
 from __future__ import annotations
 
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
-import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from ascii_motion.frame_processor import FrameProcessor, FrameProcessorConfig
-
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "docs" / "demo" / "ascii-motion-demo.gif"
+DOCS_DEMO_DIR = ROOT / "docs" / "demo"
+SITE_ASSETS_DIR = ROOT / "site" / "assets"
+DOCS_GIF = DOCS_DEMO_DIR / "ascii-motion-demo.gif"
+DOCS_MP4 = DOCS_DEMO_DIR / "ascii-motion-demo.mp4"
+SITE_GIF = SITE_ASSETS_DIR / "ascii-motion-demo.gif"
+SITE_MP4 = SITE_ASSETS_DIR / "ascii-motion-demo.mp4"
+SITE_POSTER = SITE_ASSETS_DIR / "ascii-motion-demo-poster.png"
 FRAME_COUNT = 42
+FPS = 16
 SOURCE_SIZE = (160, 90)
 ASCII_WIDTH = 74
 ASCII_HEIGHT = 28
@@ -18,31 +25,52 @@ CANVAS_SIZE = (980, 600)
 FONT_SIZE = 12
 
 
-def make_source_frame(index: int) -> np.ndarray:
+def make_source_frame(index: int) -> Image.Image:
     width, height = SOURCE_SIZE
     frame = np.zeros((height, width, 3), dtype=np.uint8)
 
     x_gradient = np.linspace(20, 180, width, dtype=np.uint8)
     y_gradient = np.linspace(10, 90, height, dtype=np.uint8)
-    frame[:, :, 0] = x_gradient
+    frame[:, :, 0] = 34
     frame[:, :, 1] = y_gradient[:, None]
-    frame[:, :, 2] = 34
+    frame[:, :, 2] = x_gradient
 
     phase = index / FRAME_COUNT
     center_x = int((0.5 + 0.34 * np.sin(phase * np.pi * 2)) * width)
     center_y = int((0.5 + 0.24 * np.cos(phase * np.pi * 2)) * height)
     radius = int(18 + 8 * np.sin(phase * np.pi * 4))
 
-    cv2.circle(frame, (center_x, center_y), radius, (60, 240, 135), -1)
-    cv2.circle(frame, (width - center_x, height - center_y), 14, (225, 190, 70), -1)
-    cv2.line(
-        frame,
-        (0, int(height * phase)),
-        (width, int(height * (1 - phase))),
-        (90, 220, 240),
-        3,
+    image = Image.fromarray(frame, "RGB")
+    draw = ImageDraw.Draw(image)
+    draw.ellipse(
+        (center_x - radius, center_y - radius, center_x + radius, center_y + radius),
+        fill=(135, 240, 60),
     )
-    return frame
+    draw.ellipse(
+        (
+            width - center_x - 14,
+            height - center_y - 14,
+            width - center_x + 14,
+            height - center_y + 14,
+        ),
+        fill=(70, 190, 225),
+    )
+    draw.line(
+        (0, int(height * phase), width, int(height * (1 - phase))),
+        fill=(240, 220, 90),
+        width=3,
+    )
+    return image
+
+
+def process_ascii(source: Image.Image) -> str:
+    resized = source.resize((ASCII_WIDTH, ASCII_HEIGHT), Image.Resampling.BOX)
+    rgb = np.asarray(resized, dtype=np.float32)
+    luminance = (0.2126 * rgb[:, :, 0]) + (0.7152 * rgb[:, :, 1]) + (0.0722 * rgb[:, :, 2])
+    chars = np.asarray(list(" .:-=+*#%@"))
+    indices = np.clip((luminance / 255.0 * (len(chars) - 1)).astype(np.intp), 0, len(chars) - 1)
+    ascii_matrix = chars[indices]
+    return "\n".join("".join(row) for row in ascii_matrix)
 
 
 def load_font() -> ImageFont.ImageFont:
@@ -109,26 +137,69 @@ def draw_terminal(ascii_frame: str, frame_index: int, font: ImageFont.ImageFont)
     return image
 
 
-def main() -> None:
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    font = load_font()
-    processor = FrameProcessor(
-        FrameProcessorConfig(width=ASCII_WIDTH, height=ASCII_HEIGHT, ascii_chars=" .:-=+*#%@")
-    )
-
-    frames = [
-        draw_terminal(processor.process(make_source_frame(index)), index, font)
-        for index in range(FRAME_COUNT)
-    ]
+def save_gif(frames: list[Image.Image], output: Path) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
     frames[0].save(
-        OUTPUT,
+        output,
         save_all=True,
         append_images=frames[1:],
-        duration=64,
+        duration=int(1000 / FPS),
         loop=0,
-        optimize=True,
+        optimize=False,
     )
-    print(OUTPUT)
+
+
+def save_mp4(frames: list[Image.Image], output: Path) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg is None:
+        raise RuntimeError("ffmpeg is required to generate the documentation MP4 asset.")
+
+    with tempfile.TemporaryDirectory(prefix="ascii-motion-demo-") as temp_dir:
+        temp_path = Path(temp_dir)
+        for index, frame in enumerate(frames):
+            frame.save(temp_path / f"frame-{index:04d}.png")
+
+        subprocess.run(
+            [
+                ffmpeg,
+                "-y",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-framerate",
+                str(FPS),
+                "-i",
+                str(temp_path / "frame-%04d.png"),
+                "-c:v",
+                "libx264",
+                "-pix_fmt",
+                "yuv420p",
+                "-movflags",
+                "+faststart",
+                str(output),
+            ],
+            check=True,
+        )
+
+
+def main() -> None:
+    DOCS_DEMO_DIR.mkdir(parents=True, exist_ok=True)
+    SITE_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+    font = load_font()
+
+    frames = [
+        draw_terminal(process_ascii(make_source_frame(index)), index, font)
+        for index in range(FRAME_COUNT)
+    ]
+    save_gif(frames, DOCS_GIF)
+    save_mp4(frames, DOCS_MP4)
+    frames[0].save(SITE_POSTER)
+    shutil.copyfile(DOCS_GIF, SITE_GIF)
+    shutil.copyfile(DOCS_MP4, SITE_MP4)
+
+    for output in (DOCS_GIF, DOCS_MP4, SITE_GIF, SITE_MP4, SITE_POSTER):
+        print(output)
 
 
 if __name__ == "__main__":

@@ -1,17 +1,30 @@
 const header = document.querySelector("[data-header]");
+const navToggle = document.querySelector("[data-nav-toggle]");
+const navMenu = document.querySelector("[data-nav-menu]");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function setScrolledState() {
+function setHeaderState() {
   if (!header) return;
-  if (window.scrollY > 8) {
-    header.style.backgroundColor = "rgba(10, 10, 10, 0.9)";
-    header.style.backdropFilter = "blur(12px)";
-    header.style.borderBottomColor = "rgba(255, 255, 255, 0.1)";
-  } else {
-    header.style.backgroundColor = "rgba(10, 10, 10, 0.85)";
-    header.style.backdropFilter = "blur(12px)";
-    header.style.borderBottomColor = "rgba(255, 255, 255, 0.1)";
-  }
+  header.classList.toggle("scrolled", window.scrollY > 8);
+}
+
+function setupMobileNav() {
+  if (!navToggle || !navMenu) return;
+
+  navToggle.addEventListener("click", () => {
+    const expanded = navToggle.getAttribute("aria-expanded") === "true";
+    navToggle.setAttribute("aria-expanded", String(!expanded));
+    navMenu.classList.toggle("open", !expanded);
+    document.body.classList.toggle("nav-open", !expanded);
+  });
+
+  navMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navToggle.setAttribute("aria-expanded", "false");
+      navMenu.classList.remove("open");
+      document.body.classList.remove("nav-open");
+    });
+  });
 }
 
 function setupReveal() {
@@ -31,62 +44,82 @@ function setupReveal() {
         }
       });
     },
-    { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+    { threshold: 0.14, rootMargin: "0px 0px -48px 0px" }
   );
 
   items.forEach((item) => observer.observe(item));
 }
 
 function setupCopyButtons() {
-  const buttons = document.querySelectorAll(".copy-btn");
-  buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const codeElement = btn.parentElement.querySelector("code");
-      if (codeElement) {
-        navigator.clipboard.writeText(codeElement.textContent).then(() => {
-          const originalText = btn.textContent;
-          btn.textContent = "Copied!";
-          btn.style.backgroundColor = "#3b82f6";
-          btn.style.color = "#ffffff";
-          
-          setTimeout(() => {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = "";
-            btn.style.color = "";
-          }, 2000);
-        });
+  document.querySelectorAll(".copy-btn").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const code = button.parentElement?.querySelector("code");
+      if (!code) return;
+      const text = code.textContent.trim();
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          copyWithSelectionFallback(text);
+        }
+        showCopyFeedback(button, "Copied");
+      } catch {
+        try {
+          copyWithSelectionFallback(text);
+          showCopyFeedback(button, "Copied");
+        } catch {
+          showCopyFeedback(button, "Select");
+        }
       }
     });
   });
 }
 
-// Smooth scrolling for navigation links
-function setupSmoothScrolling() {
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
-      
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
-        const headerOffset = 80;
-        const elementPosition = targetElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - headerOffset;
-  
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth"
-        });
-      }
+function copyWithSelectionFallback(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textarea);
+
+  if (!copied) {
+    throw new Error("Copy command was rejected.");
+  }
+}
+
+function showCopyFeedback(button, label) {
+  const previous = button.textContent;
+  button.textContent = label;
+  button.dataset.copied = label === "Copied" ? "true" : "false";
+  window.setTimeout(() => {
+    button.textContent = previous;
+    delete button.dataset.copied;
+  }, 1400);
+}
+
+function setupSmoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const targetId = link.getAttribute("href");
+      if (!targetId || targetId === "#") return;
+      const target = document.querySelector(targetId);
+      if (!target) return;
+
+      event.preventDefault();
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     });
   });
 }
 
-window.addEventListener("scroll", setScrolledState, { passive: true });
+window.addEventListener("scroll", setHeaderState, { passive: true });
 
-// Initialize
-setScrolledState();
+setHeaderState();
+setupMobileNav();
 setupReveal();
 setupCopyButtons();
-setupSmoothScrolling();
+setupSmoothScroll();
